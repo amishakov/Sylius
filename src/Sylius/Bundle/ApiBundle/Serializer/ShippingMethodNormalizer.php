@@ -28,7 +28,6 @@ use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Webmozart\Assert\Assert;
 
-/** @experimental */
 final class ShippingMethodNormalizer implements ContextAwareNormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
@@ -55,9 +54,7 @@ final class ShippingMethodNormalizer implements ContextAwareNormalizerInterface,
 
         $filters = $request->attributes->get('_api_filters');
         if (null === $filters) {
-            /** @psalm-suppress InternalMethod **/
             $queryString = RequestParser::getQueryString($request);
-            /** @psalm-suppress InternalMethod **/
             $filters = $queryString ? RequestParser::parseRequestParams($queryString) : null;
         }
 

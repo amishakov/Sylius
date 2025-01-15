@@ -38,21 +38,13 @@ class OrderItem implements OrderItemInterface
     /** @var bool */
     protected $immutable = false;
 
-    /**
-     * @var Collection|OrderItemUnitInterface[]
-     *
-     * @psalm-var Collection<array-key, OrderItemUnitInterface>
-     */
+    /** @var Collection<array-key, OrderItemUnitInterface> */
     protected $units;
 
     /** @var int */
     protected $unitsTotal = 0;
 
-    /**
-     * @var Collection|AdjustmentInterface[]
-     *
-     * @psalm-var Collection<array-key, AdjustmentInterface>
-     */
+    /** @var Collection<array-key, AdjustmentInterface> */
     protected $adjustments;
 
     /** @var int */
@@ -234,6 +226,7 @@ class OrderItem implements OrderItemInterface
             $this->adjustments->add($adjustment);
             $this->addToAdjustmentsTotal($adjustment);
             $adjustment->setAdjustable($this);
+            $this->recalculateAdjustmentsTotal();
         }
     }
 
@@ -243,6 +236,7 @@ class OrderItem implements OrderItemInterface
             $this->adjustments->removeElement($adjustment);
             $this->subtractFromAdjustmentsTotal($adjustment);
             $adjustment->setAdjustable(null);
+            $this->recalculateAdjustmentsTotal();
         }
     }
 

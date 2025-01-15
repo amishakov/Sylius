@@ -16,34 +16,49 @@ namespace Sylius\Component\Core\Updater;
 use Doctrine\Persistence\ObjectManager;
 use Psr\Log\LoggerInterface;
 use SM\Factory\Factory;
-use SM\SMException;
+use SM\Factory\FactoryInterface;
+use Sylius\Abstraction\StateMachine\Exception\StateMachineExecutionException;
+use Sylius\Abstraction\StateMachine\StateMachineInterface;
+use Sylius\Abstraction\StateMachine\WinzouStateMachineAdapter;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
 use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Order\OrderTransitions;
 
 final class UnpaidOrdersStateUpdater implements UnpaidOrdersStateUpdaterInterface
 {
-    private ?LoggerInterface $logger;
-
     public function __construct(
         private OrderRepositoryInterface $orderRepository,
-        private Factory $stateMachineFactory,
+        private Factory|StateMachineInterface $stateMachineFactory,
         private string $expirationPeriod,
-        LoggerInterface $logger = null,
+        private ?LoggerInterface $logger = null,
         private ?ObjectManager $orderManager = null,
         private int $batchSize = 100,
     ) {
         if (null === $logger) {
-            @trigger_error(
-                'Not passing a logger is deprecated since 1.7',
-                \E_USER_DEPRECATED,
+            trigger_deprecation(
+                'sylius/core',
+                '1.7',
+                'Not passing a $logger is deprecated and will be prohibited in Sylius 2.0.',
             );
         }
 
         if (null === $orderManager) {
-            @trigger_error(
-                'Not passing an $orderManager is deprecated since 1.13 as it makes $batchSize useless.',
-                \E_USER_DEPRECATED,
+            trigger_deprecation(
+                'sylius/core',
+                '1.13',
+                'Not passing the $orderManager is deprecated as it makes $batchSize useless.',
+            );
+        }
+
+        if ($this->stateMachineFactory instanceof FactoryInterface) {
+            trigger_deprecation(
+                'sylius/core',
+                '1.13',
+                sprintf(
+                    'Passing an instance of "%s" as the second argument is deprecated. It will accept only instances of "%s" in Sylius 2.0.',
+                    FactoryInterface::class,
+                    StateMachineInterface::class,
+                ),
             );
         }
 
@@ -79,13 +94,22 @@ final class UnpaidOrdersStateUpdater implements UnpaidOrdersStateUpdaterInterfac
     private function cancelOrder(OrderInterface $expiredUnpaidOrder): void
     {
         try {
-            $stateMachine = $this->stateMachineFactory->get($expiredUnpaidOrder, OrderTransitions::GRAPH);
-            $stateMachine->apply(OrderTransitions::TRANSITION_CANCEL);
-        } catch (SMException $e) {
+            $stateMachine = $this->getStateMachine();
+            $stateMachine->apply($expiredUnpaidOrder, OrderTransitions::GRAPH, OrderTransitions::TRANSITION_CANCEL);
+        } catch (StateMachineExecutionException $e) {
             $this->logger?->error(
                 sprintf('An error occurred while cancelling unpaid order #%s', $expiredUnpaidOrder->getId()),
                 ['exception' => $e, 'message' => $e->getMessage()],
             );
         }
+    }
+
+    private function getStateMachine(): StateMachineInterface
+    {
+        if ($this->stateMachineFactory instanceof FactoryInterface) {
+            return new WinzouStateMachineAdapter($this->stateMachineFactory);
+        }
+
+        return $this->stateMachineFactory;
     }
 }

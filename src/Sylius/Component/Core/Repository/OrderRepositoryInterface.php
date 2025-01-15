@@ -30,9 +30,25 @@ interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
 {
     public function createListQueryBuilder(): QueryBuilder;
 
+    /**
+     * @deprecated since Sylius 1.13 and will be removed in Sylius 2.0. Use {@see createCriteriaAwareSearchListQueryBuilder()} instead.
+     */
     public function createSearchListQueryBuilder(): QueryBuilder;
 
+    /**
+     * @param array{product: string, variant: string}|null $criteria
+     */
+    public function createCriteriaAwareSearchListQueryBuilder(?array $criteria): QueryBuilder;
+
+    /**
+     * @deprecated since Sylius 1.13 and will be removed in Sylius 2.0. Use {@see createByCustomerIdCriteriaAwareQueryBuilder()} instead.
+     */
     public function createByCustomerIdQueryBuilder($customerId): QueryBuilder;
+
+    /**
+     * @param array{product: string, variant: string}|null $criteria
+     */
+    public function createByCustomerIdCriteriaAwareQueryBuilder(?array $criteria, string $customerId): QueryBuilder;
 
     public function createByCustomerAndChannelIdQueryBuilder($customerId, $channelId): QueryBuilder;
 
@@ -95,4 +111,16 @@ interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
     public function findCartByTokenValue(string $tokenValue): ?BaseOrderInterface;
 
     public function findCartByTokenValueAndChannel(string $tokenValue, ChannelInterface $channel): ?BaseOrderInterface;
+
+    /**
+     * @param array<string, string> $groupBy
+     *
+     * @return array<array{total: int, year: int, month: int, day: int}>
+     */
+    public function getGroupedTotalPaidSalesForChannelInPeriod(
+        ChannelInterface $channel,
+        \DateTimeInterface $startDate,
+        \DateTimeInterface $endDate,
+        array $groupBy,
+    ): array;
 }

@@ -36,13 +36,13 @@ final class LocalesTest extends JsonApiTestCase
             $header,
             json_encode([
                 'code' => 'lol',
-            ], JSON_THROW_ON_ERROR)
+            ], \JSON_THROW_ON_ERROR),
         );
 
         $this->assertResponse(
             $this->client->getResponse(),
-            'admin/post_locale_with_invalid_code_response',
-            Response::HTTP_UNPROCESSABLE_ENTITY
+            'admin/locale/post_locale_with_invalid_code_response',
+            Response::HTTP_UNPROCESSABLE_ENTITY,
         );
     }
 
@@ -78,6 +78,7 @@ final class LocalesTest extends JsonApiTestCase
             Response::HTTP_OK,
         );
     }
+
     /** @test */
     public function it_gets_locales(): void
     {
@@ -101,7 +102,7 @@ final class LocalesTest extends JsonApiTestCase
             server: $header,
             content: json_encode([
                 'code' => 'is_IS',
-            ], JSON_THROW_ON_ERROR),
+            ], \JSON_THROW_ON_ERROR),
         );
 
         $this->assertResponse(
@@ -109,5 +110,28 @@ final class LocalesTest extends JsonApiTestCase
             'admin/locale/post_locale_response',
             Response::HTTP_CREATED,
         );
+    }
+
+    /** @test */
+    public function it_deletes_an_unused_locale(): void
+    {
+        $this->loadFixturesFromFiles(['authentication/api_administrator.yaml', 'locale.yaml']);
+        $header = array_merge($this->logInAdminUser('api@example.com'), self::CONTENT_TYPE_HEADER);
+
+        $this->client->request(
+            method: 'DELETE',
+            uri: '/api/v2/admin/locales/en_US',
+            server: $header,
+        );
+
+        $this->assertResponseCode($this->client->getResponse(), Response::HTTP_NO_CONTENT);
+
+        $this->client->request(
+            method: 'GET',
+            uri: '/api/v2/admin/locales/en_US',
+            server: $header,
+        );
+
+        $this->assertResponseCode($this->client->getResponse(), Response::HTTP_NOT_FOUND);
     }
 }

@@ -46,3 +46,4 @@ default:
 
             filters:
                 tags: "@customer_account&&@api"
+            javascript: false

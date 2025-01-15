@@ -7,17 +7,8 @@ Installation
 The Sylius main application can serve as an end-user app, as well as a foundation
 for your custom e-commerce application.
 
-To create your Sylius-based application, first make sure you use PHP 8.0 or higher
+To create your Sylius-based application, first make sure you use PHP 8.1 or higher
 and have `Composer`_ installed.
-
-.. note::
-
-    In order to inform you about newest Sylius releases and be aware of shops based on Sylius,
-    the Core Team uses an internal statistical service called GUS.
-    The only data that is collected and stored in its database are hostname, user agent, locale,
-    environment (test, dev or prod), current Sylius version and the date of last contact.
-    If you do not want your shop to send requests to GUS, please visit :doc:`this guide </cookbook/configuration/disabling-admin-notifications>`
-    for further instructions.
 
 Initiating A New Sylius Project
 -------------------------------
@@ -28,9 +19,21 @@ To begin creating your new project, run this command:
 
     composer create-project sylius/sylius-standard acme
 
+.. tip::
+
+    We are about to release a new major version of Sylius, which is going to be 2.0.
+    Worry not, upgrading from 1.x to 2.x will be possible.
+    It is currently recommended to start with 1.x and upgrade the project once 2.0 is there,
+    but if you'd like to start playing around with the still-in-progress version, you can use this command to set the environment
+    on Sylius 2.0-BETA.X.
+
+    .. code-block:: bash
+
+        composer create-project --stability=dev sylius/sylius-standard:2.0.x-dev acme
+
 .. note::
 
-    Make sure to use PHP ^8.0. Using an older PHP version will result in installing an older version of Sylius.
+    Make sure to use PHP ^8.1. Using an older PHP version will result in installing an older version of Sylius.
 
 This will create a new Symfony project in the ``acme`` directory. Next, move to the project directory:
 
@@ -75,10 +78,14 @@ After everything is in place, run the following command to install Sylius:
 Configuring Mailer
 ------------------
 
-In order to send emails you need to configure Mailer Service. Basically you need to:
+In order to send emails you need to configure Mailer Service. Basically there are multiple ways to do it:
+
+* We are recommending to use `Symfony Mailer <https://symfony.com/doc/current/mailer.html>`_ where out of the box, you can deliver emails by configuring the ``MAILER_DSN`` variable in your .env file.
+* In Symfony Mailer use the `3rd Party Transports <https://symfony.com/doc/current/mailer.html#using-a-3rd-party-transport>`_
+* (deprecated) Use SwiftMailer with this short configuration:
 
 1. **Create an account on a mailing service.**
-2. **In your** ``.env`` **file modify the** ``MAILER_URL`` **variable.**
+2. **In your** ``.env`` **file modify/add the** ``MAILER_URL`` **variable.**
 
 .. code-block:: text
 

@@ -31,6 +31,7 @@
         </service>
 
         <service id="sylius.behat.context.setup.cart" class="Sylius\Behat\Context\Setup\CartContext">
+            <argument type="service" id="sylius.repository.order" />
             <argument type="service" id="sylius.command_bus" />
             <argument type="service" id="Sylius\Component\Product\Resolver\ProductVariantResolverInterface" />
             <argument type="service" id="sylius.random_generator" />
@@ -109,7 +110,7 @@
             <argument type="service" id="sylius.factory.customer" />
             <argument type="service" id="sylius.factory.order_item" />
             <argument type="service" id="sylius.factory.shipment" />
-            <argument type="service" id="sm.factory" />
+            <argument type="service" id="sylius_abstraction.state_machine" />
             <argument type="service" id="sylius.repository.country" />
             <argument type="service" id="sylius.repository.customer" />
             <argument type="service" id="sylius.repository.order" />
@@ -118,6 +119,8 @@
             <argument type="service" id="Sylius\Component\Product\Resolver\ProductVariantResolverInterface" />
             <argument type="service" id="sylius.order_item_quantity_modifier" />
             <argument type="service" id="doctrine.orm.entity_manager" />
+            <argument type="service" id="Sylius\Calendar\Provider\DateTimeProviderInterface" />
+            <argument type="service" id="Sylius\Component\Resource\Generator\RandomnessGeneratorInterface" />
         </service>
 
         <service id="sylius.behat.context.setup.payment" class="Sylius\Behat\Context\Setup\PaymentContext">
@@ -151,6 +154,7 @@
             <argument type="service" id="sylius.factory.product_option" />
             <argument type="service" id="sylius.factory.product_option_value" />
             <argument type="service" id="sylius.factory.product_image" />
+            <argument type="service" id="sylius.factory.product_taxon" />
             <argument type="service" id="doctrine.orm.entity_manager" />
             <argument type="service" id="sylius.generator.product_variant" />
             <argument type="service" id="sylius.repository.product_variant" />
@@ -192,7 +196,7 @@
             <argument type="service" id="sylius.behat.shared_storage" />
             <argument type="service" id="sylius.factory.product_review" />
             <argument type="service" id="sylius.repository.product_review" />
-            <argument type="service" id="sm.factory" />
+            <argument type="service" id="sylius_abstraction.state_machine" />
         </service>
 
         <service id="sylius.behat.context.setup.product_taxon" class="Sylius\Behat\Context\Setup\ProductTaxonContext">
@@ -205,10 +209,10 @@
             <argument type="service" id="sylius.factory.promotion_action" />
             <argument type="service" id="sylius.factory.promotion_coupon" />
             <argument type="service" id="sylius.factory.promotion_rule" />
-            <argument type="service" id="sylius.test.factory.promotion" />
             <argument type="service" id="sylius.repository.promotion" />
             <argument type="service" id="sylius.promotion_coupon_generator" />
             <argument type="service" id="doctrine.orm.entity_manager" />
+            <argument type="service" id="sylius.fixture.example_factory.promotion" />
         </service>
 
         <service id="sylius.behat.context.setup.admin_security" class="Sylius\Behat\Context\Setup\AdminSecurityContext">
@@ -287,6 +291,7 @@
             <argument type="service" id="sylius.fixture.example_factory.shop_user" />
             <argument type="service" id="sylius.manager.shop_user" />
             <argument type="service" id="sylius.command_bus" />
+            <argument type="string">%sylius.shop_user.token.password_reset.ttl%</argument>
         </service>
 
         <service id="sylius.behat.context.setup.zone" class="Sylius\Behat\Context\Setup\ZoneContext">
@@ -303,15 +308,9 @@
             <argument type="service" id="sylius.factory.catalog_promotion_action" />
             <argument type="service" id="sylius.manager.catalog_promotion" />
             <argument type="service" id="sylius.repository.channel" />
-            <argument type="service" id="sm.factory" />
+            <argument type="service" id="sylius_abstraction.state_machine" />
             <argument type="service" id="sylius.event_bus" />
             <argument type="service" id="sylius.behat.shared_storage" />
-        </service>
-
-        <service id="Sylius\Behat\Context\Setup\PriceHistoryContext" public="true">
-            <argument type="service" id="Sylius\Calendar\Tests\Behat\Context\Setup\CalendarContext" />
-            <argument type="service" id="sylius.manager.channel_pricing" />
-            <argument type="service" id="Sylius\Component\Product\Resolver\ProductVariantResolverInterface" />
         </service>
     </services>
 </container>

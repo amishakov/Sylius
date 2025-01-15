@@ -28,18 +28,26 @@ class SecurityController extends AbstractController
         private ?FormFactoryInterface $formFactory = null,
     ) {
         if ($this->authenticationUtils === null) {
-            @trigger_error(sprintf('Not passing a $authenticationUtils to %s constructor is deprecated since Sylius 1.11 and will be prohibited in Sylius 2.0.', self::class), \E_USER_DEPRECATED);
+            trigger_deprecation(
+                'sylius/user-bundle',
+                '1.11',
+                'Not passing a $authenticationUtils to %s constructor is deprecated and will be prohibited in Sylius 2.0.',
+                self::class,
+            );
         }
 
         if ($this->formFactory === null) {
-            @trigger_error(sprintf('Not passing a $formFactory to %s constructor is deprecated since Sylius 1.11 and will be prohibited in Sylius 2.0.', self::class), \E_USER_DEPRECATED);
+            trigger_deprecation(
+                'sylius/user-bundle',
+                '1.11',
+                'Not passing a $formFactory to %s constructor is deprecated and will be prohibited in Sylius 2.0.',
+                self::class,
+            );
         }
     }
 
     /**
      * Login form action.
-     *
-     * @psalm-suppress DeprecatedMethod
      */
     public function loginAction(Request $request): Response
     {
@@ -52,7 +60,7 @@ class SecurityController extends AbstractController
         $error = $authenticationUtils->getLastAuthenticationError();
         $lastUsername = $authenticationUtils->getLastUsername();
 
-        $options = $request->attributes->get('_sylius');
+        $options = $request->attributes->get('_sylius', []);
 
         $template = $options['template'] ?? null;
         Assert::notNull($template, 'Template is not configured.');

@@ -25,10 +25,12 @@ use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\BackwardsCompatibility
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\BackwardsCompatibility\ResolveShopUserTargetEntityPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\BackwardsCompatibility\Symfony5AuthenticationManagerPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\BackwardsCompatibility\Symfony6PrivateServicesPass;
+use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\CheckStatisticsOrdersTotalsProviderTypePass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\CircularDependencyBreakingErrorListenerPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\IgnoreAnnotationsPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\LazyCacheWarmupPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\LiipImageFiltersPass;
+use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\OverrideResourceControllerStateMachinePass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\RegisterTaxCalculationStrategiesPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\RegisterUriBasedSectionResolverPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\SyliusPriceHistoryLegacyAliasesPass;
@@ -41,15 +43,15 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 final class SyliusCoreBundle extends AbstractResourceBundle
 {
-    public const VERSION = '1.13.0-DEV';
+    public const VERSION = '1.13.11-DEV';
 
-    public const VERSION_ID = '11300';
+    public const VERSION_ID = '11311';
 
     public const MAJOR_VERSION = '1';
 
     public const MINOR_VERSION = '13';
 
-    public const RELEASE_VERSION = '0';
+    public const RELEASE_VERSION = '11';
 
     public const EXTRA_VERSION = 'DEV';
 
@@ -95,11 +97,10 @@ final class SyliusCoreBundle extends AbstractResourceBundle
         $container->addCompilerPass(new TranslatableEntityLocalePass());
         $container->addCompilerPass(new CancelOrderStateMachineCallbackPass());
         $container->addCompilerPass(new SyliusPriceHistoryLegacyAliasesPass());
+        $container->addCompilerPass(new CheckStatisticsOrdersTotalsProviderTypePass());
+        $container->addCompilerPass(new OverrideResourceControllerStateMachinePass(), priority: -1024);
     }
 
-    /**
-     * @psalm-suppress MismatchingDocblockReturnType https://github.com/vimeo/psalm/issues/2345
-     */
     protected function getModelNamespace(): string
     {
         return 'Sylius\Component\Core\Model';

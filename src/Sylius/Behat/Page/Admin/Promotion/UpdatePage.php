@@ -135,6 +135,23 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
         $this->getElement('action_field', ['%channelCode%' => $channelCode, '%field%' => $field])->setValue('');
     }
 
+    public function getItemPercentageDiscountActionValue(string $channelCode): string
+    {
+        return $this->getElement('action_field', ['%channelCode%' => $channelCode, '%field%' => 'percentage'])->getValue() . '%';
+    }
+
+    public function specifyOrderPercentageDiscountActionValue(string $discount): void
+    {
+        $this->getElement('order_percentage_action_field')->setValue($discount);
+    }
+
+    public function getOrderPercentageDiscountActionValue(): string
+    {
+        $action = $this->getElement('order_percentage_action_field');
+
+        return $action->find('css', 'input')->getValue() . '%';
+    }
+
     public function removeRuleAmount(string $channelCode): void
     {
         $this->getElement('rule_amount', ['%channelCode%' => $channelCode])->setValue('');
@@ -184,6 +201,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
             'exclusive' => '#sylius_promotion_exclusive',
             'label' => '#sylius_promotion_translations_%localeCode%_label',
             'name' => '#sylius_promotion_name',
+            'order_percentage_action_field' => '[id^="sylius_promotion_actions_"][id$="_configuration_percentage"]',
             'priority' => '#sylius_promotion_priority',
             'rule_amount' => '[id^="sylius_promotion_rules_"][id$="_configuration_%channelCode%_amount"]',
             'rules' => '#rules',

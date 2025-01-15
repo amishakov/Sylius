@@ -14,6 +14,9 @@ declare(strict_types=1);
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
+use Sylius\Behat\Context\Ui\Admin\Helper\ValidationTrait;
+use Sylius\Behat\Element\Admin\Promotion\FormElementInterface;
 use Sylius\Behat\NotificationType;
 use Sylius\Behat\Page\Admin\Crud\IndexPageInterface as IndexPageCouponInterface;
 use Sylius\Behat\Page\Admin\Promotion\CreatePageInterface;
@@ -28,6 +31,8 @@ use Webmozart\Assert\Assert;
 
 final class ManagingPromotionsContext implements Context
 {
+    use ValidationTrait;
+
     public function __construct(
         private SharedStorageInterface $sharedStorage,
         private IndexPageInterface $indexPage,
@@ -36,6 +41,7 @@ final class ManagingPromotionsContext implements Context
         private UpdatePageInterface $updatePage,
         private CurrentPageResolverInterface $currentPageResolver,
         private NotificationCheckerInterface $notificationChecker,
+        private FormElementInterface $formElement,
     ) {
     }
 
@@ -61,7 +67,7 @@ final class ManagingPromotionsContext implements Context
      * @When I specify its code as :code
      * @When I do not specify its code
      */
-    public function iSpecifyItsCodeAs($code = null)
+    public function iSpecifyItsCodeAs(?string $code = null): void
     {
         $this->createPage->specifyCode($code ?? '');
     }
@@ -77,15 +83,15 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
+     * @When I set its priority to :priority
      * @When I remove its priority
      */
-    public function iRemoveItsPriority()
+    public function iRemoveItsPriority(?int $priority = null): void
     {
-        $this->updatePage->setPriority(null);
+        $this->formElement->prioritizeIt($priority);
     }
 
     /**
-     * @Then I should see the promotion :promotionName in the list
      * @Then the :promotionName promotion should appear in the registry
      * @Then the :promotionName promotion should exist in the registry
      * @Then this promotion should still be named :promotionName
@@ -133,10 +139,10 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @When I add the "Has at least one from taxons" rule configured with :firstTaxon
-     * @When I add the "Has at least one from taxons" rule configured with :firstTaxon and :secondTaxon
+     * @When I add the "Has at least one from taxons" rule configured with :firstTaxon taxon
+     * @When I add the "Has at least one from taxons" rule configured with :firstTaxon taxon and :secondTaxon taxon
      */
-    public function iAddTheHasTaxonRuleConfiguredWith(...$taxons)
+    public function iAddTheHasTaxonRuleConfiguredWith(string ...$taxons): void
     {
         $this->createPage->addRule('Has at least one from taxons');
 
@@ -144,7 +150,7 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @When /^I add the "Total price of items from taxon" rule configured with "([^"]+)" taxon and (?:€|£|\$)([^"]+) amount for ("[^"]+" channel)$/
+     * @When /^I add the "Total price of items from taxon" rule configured with "([^"]+)" taxon and "(?:€|£|\$)([^"]+)" amount for ("[^"]+" channel)$/
      */
     public function iAddTheRuleConfiguredWith($taxonName, $amount, ChannelInterface $channel)
     {
@@ -154,7 +160,7 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @When /^I add the "Item total" rule configured with (?:€|£|\$)([^"]+) amount for ("[^"]+" channel) and (?:€|£|\$)([^"]+) amount for ("[^"]+" channel)$/
+     * @When /^I add the "Item total" rule configured with "(?:€|£|\$)([^"]+)" amount for ("[^"]+" channel) and "(?:€|£|\$)([^"]+)" amount for ("[^"]+" channel)$/
      */
     public function iAddTheItemTotalRuleConfiguredWithTwoChannel(
         $firstAmount,
@@ -185,7 +191,7 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @When /^I specify that on ("[^"]+" channel) this action should be applied to items with price greater then "(?:€|£|\$)([^"]+)"$/
+     * @When /^I specify that on ("[^"]+" channel) this action should be applied to items with price greater than "(?:€|£|\$)([^"]+)"$/
      */
     public function iAddAMinPriceFilterRangeForChannel(ChannelInterface $channel, $minimum)
     {
@@ -193,7 +199,7 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @When /^I specify that on ("[^"]+" channel) this action should be applied to items with price lesser then "(?:€|£|\$)([^"]+)"$/
+     * @When /^I specify that on ("[^"]+" channel) this action should be applied to items with price lesser than "(?:€|£|\$)([^"]+)"$/
      */
     public function iAddAMaxPriceFilterRangeForChannel(ChannelInterface $channel, $maximum)
     {
@@ -218,7 +224,7 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @When /^I add the "([^"]+)" action configured with a percentage value of (?:|-)([^"]+)% for ("[^"]+" channel)$/
+     * @When /^I add the "([^"]+)" action configured with a percentage value of "(?:|-)([^"]+)%" for ("[^"]+" channel)$/
      */
     public function iAddTheActionConfiguredWithAPercentageValueForChannel(
         string $actionType,
@@ -230,7 +236,18 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @When /^I add the "([^"]+)" action configured with a percentage value of (?:|-)([^"]+)%$/
+     * @When I add the :actionType action configured without a percentage value for :channel channel
+     */
+    public function iAddTheActionConfiguredWithoutAPercentageValueForChannel(
+        string $actionType,
+        ChannelInterface $channel,
+    ): void {
+        $this->createPage->addAction($actionType);
+        $this->createPage->fillActionOptionForChannel($channel->getCode(), 'Percentage', '');
+    }
+
+    /**
+     * @When /^I add the "([^"]+)" action configured with a percentage value of "(?:|-)([^"]+)%"$/
      * @When I add the :actionType action configured without a percentage value
      */
     public function iAddTheActionConfiguredWithAPercentageValue($actionType, $percentage = null)
@@ -262,6 +279,33 @@ final class ManagingPromotionsContext implements Context
     public function iDeleteThem(): void
     {
         $this->indexPage->bulkDelete();
+    }
+
+    /**
+     * @When I archive the :promotionName promotion
+     */
+    public function iArchiveThePromotion(string $promotionName): void
+    {
+        $actions = $this->indexPage->getActionsForResource(['name' => $promotionName]);
+        $actions->pressButton('Archive');
+    }
+
+    /**
+     * @When I restore the :promotionName promotion
+     */
+    public function iRestoreThePromotion(string $promotionName): void
+    {
+        $actions = $this->indexPage->getActionsForResource(['name' => $promotionName]);
+        $actions->pressButton('Restore');
+    }
+
+    /**
+     * @When I filter archival promotions
+     */
+    public function iFilterArchivalPromotions(): void
+    {
+        $this->indexPage->chooseArchival('Yes');
+        $this->indexPage->filter();
     }
 
     /**
@@ -355,9 +399,9 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @When I make it exclusive
+     * @When I set it as exclusive
      */
-    public function iMakeItExclusive()
+    public function iSetItAsExclusive(): void
     {
         /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
@@ -443,9 +487,19 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @Then the code field should be disabled
+     * @When /^I edit (this promotion) percentage action to have "([^"]+)%"$/
      */
-    public function theCodeFieldShouldBeDisabled()
+    public function iEditPromotionToHaveDiscount(PromotionInterface $promotion, string $amount): void
+    {
+        $this->updatePage->open(['id' => $promotion->getId()]);
+        $this->updatePage->specifyOrderPercentageDiscountActionValue($amount);
+        $this->updatePage->saveChanges();
+    }
+
+    /**
+     * @Then I should not be able to edit its code
+     */
+    public function iShouldNotBeAbleToEditItsCode(): void
     {
         Assert::true($this->updatePage->isCodeDisabled());
     }
@@ -517,9 +571,9 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @Then I should be notified that promotion cannot end before it start
+     * @Then I should be notified that promotion cannot end before it starts
      */
-    public function iShouldBeNotifiedThatPromotionCannotEndBeforeItsEvenStart()
+    public function iShouldBeNotifiedThatPromotionCannotEndBeforeItsEvenStarts(): void
     {
         /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
@@ -741,6 +795,22 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
+     * @Then it should have :amount of order percentage discount
+     */
+    public function itShouldHaveOfOrderPercentageDiscount(string $amount): void
+    {
+        Assert::same($this->updatePage->getOrderPercentageDiscountActionValue(), $amount);
+    }
+
+    /**
+     * @Then it should have :amount of item percentage discount configured for :channel channel
+     */
+    public function itShouldHaveOfItemPercentageDiscount(string $amount, ChannelInterface $channel): void
+    {
+        Assert::same($this->updatePage->getItemPercentageDiscountActionValue($channel->getCode()), $amount);
+    }
+
+    /**
      * @Then I should see the action configuration form
      */
     public function iShouldSeeTheActionConfigurationForm()
@@ -789,6 +859,30 @@ final class ManagingPromotionsContext implements Context
         );
     }
 
+    /**
+     * @Then I should see the promotion :promotionName in the list
+     */
+    public function iShouldSeeThePromotionInTheList(string $promotionName): void
+    {
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $promotionName]));
+    }
+
+    /**
+     * @Then I should not see the promotion :promotionName in the list
+     */
+    public function iShouldNotSeeThePromotionInTheList(string $promotionName): void
+    {
+        Assert::false($this->indexPage->isSingleResourceOnPage(['name' => $promotionName]));
+    }
+
+    /**
+     * @Then I should be viewing non archival promotions
+     */
+    public function iShouldBeViewingNonArchivalPromotions(): void
+    {
+        Assert::false($this->indexPage->isArchivalFilterEnabled());
+    }
+
     private function assertFieldValidationMessage(string $element, string $expectedMessage)
     {
         /** @var CreatePageInterface|UpdatePageInterface $currentPage */
@@ -812,5 +906,10 @@ final class ManagingPromotionsContext implements Context
         $this->iWantToModifyAPromotion($promotion);
 
         Assert::false($this->updatePage->hasResourceValues([$field => 1]));
+    }
+
+    protected function resolveCurrentPage(): SymfonyPageInterface
+    {
+        return $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
     }
 }

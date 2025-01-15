@@ -19,7 +19,6 @@ use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\ApiBundle\Context\UserContextInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 
-/** @experimental */
 final class ProductsByTaxonExtension implements ContextAwareQueryCollectionExtensionInterface
 {
     public function __construct(
@@ -31,7 +30,7 @@ final class ProductsByTaxonExtension implements ContextAwareQueryCollectionExten
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
-        string $operationName = null,
+        ?string $operationName = null,
         array $context = [],
     ): void {
         if (!is_a($resourceClass, ProductInterface::class, true)) {
@@ -51,8 +50,13 @@ final class ProductsByTaxonExtension implements ContextAwareQueryCollectionExten
         $this->addSortingToQuery($queryBuilder, $taxonCode, $queryNameGenerator);
     }
 
-    private function addSortingToQuery(QueryBuilder $queryBuilder, string $taxonCode, QueryNameGeneratorInterface $queryNameGenerator): void
+    /**
+     * @param array<string>|string $taxonCode
+     */
+    private function addSortingToQuery(QueryBuilder $queryBuilder, array|string $taxonCode, QueryNameGeneratorInterface $queryNameGenerator): void
     {
+        $taxonCode = is_array($taxonCode) ? $taxonCode : [$taxonCode];
+
         $rootAlias = $queryBuilder->getRootAliases()[0];
         $taxonCodeParameterName = $queryNameGenerator->generateParameterName('taxonCode');
         $productTaxonAliasName = $queryNameGenerator->generateJoinAlias('productTaxons');
@@ -71,7 +75,7 @@ final class ProductsByTaxonExtension implements ContextAwareQueryCollectionExten
                 $taxonAliasName,
                 'WITH',
                 $queryBuilder->expr()->andX(
-                    $queryBuilder->expr()->eq(sprintf('%s.code', $taxonAliasName), sprintf(':%s', $taxonCodeParameterName)),
+                    $queryBuilder->expr()->in(sprintf('%s.code', $taxonAliasName), sprintf(':%s', $taxonCodeParameterName)),
                     $queryBuilder->expr()->eq(sprintf('%s.enabled', $taxonAliasName), 'true'),
                 ),
             )

@@ -21,7 +21,17 @@ What are our core values and what makes us different from other solutions?
 
 And much more, but we will let you discover it yourself.
 
-.. rst-class:: plus-doc
+.. image:: ../../_images/ce_plus_banner.png
+    :align: center
+    :target: https://sylius.com/plus/?utm_source=docs&utm_medium=cta&utm_campaign=plus
+
+|
+
+Sylius Community Edition (CE)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The free, open source distribution of Sylius that can be found in the `Sylius/Sylius <https://github.com/Sylius/Sylius>`_ repository
+is called the Community Edition, abbreviated **Sylius CE**.
 
 Sylius Plus
 ^^^^^^^^^^^
@@ -62,7 +72,7 @@ Roadmap
 -------
 
 Are you wondering about Sylius plans for the next releases? If so then you should follow our `Roadmap <https://sylius.com/roadmap>`_.
-Through our :doc:`Slack and Forum </book/support/index>` you can contribute by conversation and votes on the most desired features and improvements.
+Through our :doc:`Slack </book/support/index>` you can contribute by conversation and votes on the most desired features and improvements.
 
 Final Thoughts
 --------------

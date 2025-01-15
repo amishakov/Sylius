@@ -22,7 +22,7 @@ use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Provider\ProductVariantMap\ProductVariantsMapProvider;
 use Sylius\Component\Product\Model\ProductOptionValueInterface;
 
-/** @deprecated since 1.13 and will be removed in Sylius 2.0. Use {@see ProductVariantsMapProvider} instead. */
+/** @deprecated since Sylius 1.13 and will be removed in Sylius 2.0. Use {@see ProductVariantsMapProvider} instead. */
 final class ProductVariantsPricesProvider implements ProductVariantsPricesProviderInterface
 {
     public function __construct(private ProductVariantPriceCalculatorInterface $productVariantPriceCalculator)
@@ -30,11 +30,9 @@ final class ProductVariantsPricesProvider implements ProductVariantsPricesProvid
         trigger_deprecation(
             'sylius/core-bundle',
             '1.13',
-            sprintf(
-                'The "%s" class is deprecated since Sylius 1.13 and will be removed in 2.0. Use "%s" instead.',
-                self::class,
-                ProductVariantsMapProvider::class,
-            ),
+            'The "%s" class is deprecated and will be removed in Sylius 2.0. Use "%s" instead.',
+            self::class,
+            ProductVariantsMapProvider::class,
         );
     }
 
@@ -74,10 +72,19 @@ final class ProductVariantsPricesProvider implements ProductVariantsPricesProvid
             return $optionMap;
         }
 
-        $lowestPriceBeforeDiscount = $this->productVariantPriceCalculator->calculateLowestPriceBeforeDiscount($variant, ['channel' => $channel]);
+        if (\method_exists($this->productVariantPriceCalculator, 'calculateLowestPriceBeforeDiscount')) {
+            $lowestPriceBeforeDiscount = $this->productVariantPriceCalculator->calculateLowestPriceBeforeDiscount($variant, ['channel' => $channel]);
 
-        if ($lowestPriceBeforeDiscount !== null) {
-            $optionMap['lowest-price-before-discount'] = $lowestPriceBeforeDiscount;
+            if ($lowestPriceBeforeDiscount !== null) {
+                $optionMap['lowest-price-before-discount'] = $lowestPriceBeforeDiscount;
+            }
+        } else {
+            trigger_deprecation(
+                'sylius/sylius',
+                '1.13',
+                'Not having `calculateLowestPriceBeforeDiscount` method on %s is deprecated since Sylius 1.13 and will be required in Sylius 2.0.',
+                $this->productVariantPriceCalculator::class,
+            );
         }
 
         $originalPrice = $this->productVariantPriceCalculator->calculateOriginal($variant, ['channel' => $channel]);

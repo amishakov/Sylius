@@ -55,6 +55,8 @@ interface UpdateSimpleProductPageInterface extends BaseUpdatePageInterface
 
     public function selectMainTaxon(TaxonInterface $taxon): void;
 
+    public function isTaxonVisibleInMainTaxonList(string $taxonName): bool;
+
     public function selectProductTaxon(TaxonInterface $taxon): void;
 
     public function unselectProductTaxon(TaxonInterface $taxon): void;
@@ -69,7 +71,7 @@ interface UpdateSimpleProductPageInterface extends BaseUpdatePageInterface
 
     public function isImageWithTypeDisplayed(string $type): bool;
 
-    public function attachImage(string $path, string $type = null): void;
+    public function attachImage(string $path, ?string $type = null): void;
 
     public function changeImageWithType(string $type, string $path): void;
 
@@ -111,6 +113,8 @@ interface UpdateSimpleProductPageInterface extends BaseUpdatePageInterface
     public function goToVariantGeneration(): void;
 
     public function hasInventoryTab(): bool;
+
+    public function getShowProductInSingleChannelUrl(): string;
 
     public function isShowInShopButtonDisabled(): bool;
 

@@ -72,7 +72,7 @@ final class CountriesTest extends JsonApiTestCase
             content: json_encode([
                 'code' => 'IE',
                 'enabled' => true,
-            ], JSON_THROW_ON_ERROR),
+            ], \JSON_THROW_ON_ERROR),
         );
 
         $this->assertResponse(
@@ -101,13 +101,35 @@ final class CountriesTest extends JsonApiTestCase
                     'code' => 'US-WA',
                     'name' => 'Washington',
                     'country' => $country->getCode(),
-                ]]
-            ], JSON_THROW_ON_ERROR),
+                ]],
+            ], \JSON_THROW_ON_ERROR),
         );
 
         $this->assertResponse(
             $this->client->getResponse(),
             'admin/country/put_country_response',
+            Response::HTTP_OK,
+        );
+    }
+
+    /** @test */
+    public function it_gets_provinces_from_country(): void
+    {
+        $fixtures = $this->loadFixturesFromFiles(['authentication/api_administrator.yaml', 'country.yaml']);
+        $header = array_merge($this->logInAdminUser('api@example.com'), self::CONTENT_TYPE_HEADER);
+
+        /** @var CountryInterface $country */
+        $country = $fixtures['country_US'];
+
+        $this->client->request(
+            method: 'GET',
+            uri: sprintf('/api/v2/admin/countries/%s/provinces', $country->getCode()),
+            server: $header,
+        );
+
+        $this->assertResponse(
+            $this->client->getResponse(),
+            'admin/country/get_provinces_response',
             Response::HTTP_OK,
         );
     }

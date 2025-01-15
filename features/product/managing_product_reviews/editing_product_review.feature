@@ -28,7 +28,7 @@ Feature: Editing product reviews
         Then I should be notified that it has been successfully edited
         And this product review comment should be "Nice product"
 
-    @ui @api @javascript
+    @ui @api @mink:chromedriver
     Scenario: Changing a rating of a product review
         When I want to modify the "Awesome" product review
         And I choose 5 as its rating
@@ -36,12 +36,12 @@ Feature: Editing product reviews
         Then I should be notified that it has been successfully edited
         And this product review rating should be 5
 
-    @ui
+    @ui @no-api
     Scenario: Seeing a product's name while editing a product review
         When I want to modify the "Awesome" product review
         Then I should be editing review of product "Lamborghini Gallardo Model"
 
-    @ui
+    @ui @no-api
     Scenario: Seeing a customer's name while editing a product review
         When I want to modify the "Awesome" product review
         Then I should see the customer's name "Mike Ross"

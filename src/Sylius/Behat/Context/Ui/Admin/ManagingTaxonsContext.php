@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
+use Sylius\Behat\Context\Ui\Admin\Helper\ValidationTrait;
 use Sylius\Behat\NotificationType;
 use Sylius\Behat\Page\Admin\Product\UpdateSimpleProductPageInterface;
 use Sylius\Behat\Page\Admin\Taxon\CreateForParentPageInterface;
@@ -29,6 +31,8 @@ use Webmozart\Assert\Assert;
 
 final class ManagingTaxonsContext implements Context
 {
+    use ValidationTrait;
+
     public function __construct(
         private SharedStorageInterface $sharedStorage,
         private CreatePageInterface $createPage,
@@ -72,7 +76,7 @@ final class ManagingTaxonsContext implements Context
      * @When I specify its code as :code
      * @When I do not specify its code
      */
-    public function iSpecifyItsCodeAs(?string $code = null)
+    public function iSpecifyItsCodeAs(?string $code = null): void
     {
         $this->createPage->specifyCode($code ?? '');
     }
@@ -139,6 +143,7 @@ final class ManagingTaxonsContext implements Context
     /**
      * @Given /^I set its (parent taxon to "[^"]+")$/
      * @Given /^I change its (parent taxon to "[^"]+")$/
+     * @Then /^I should be able to change its (parent taxon to "[^"]+")$/
      */
     public function iChangeItsParentTaxonTo(TaxonInterface $taxon)
     {
@@ -157,6 +162,7 @@ final class ManagingTaxonsContext implements Context
     /**
      * @When I save my changes
      * @When I try to save my changes
+     * @When I save my changes to the images
      */
     public function iSaveMyChanges()
     {
@@ -193,9 +199,9 @@ final class ManagingTaxonsContext implements Context
     }
 
     /**
-     * @Then the code field should be disabled
+     * @Then I should not be able to edit its code
      */
-    public function theCodeFieldShouldBeDisabled()
+    public function iShouldNotBeAbleToEditItsCode(): void
     {
         Assert::true($this->updatePage->isCodeDisabled());
     }
@@ -207,7 +213,7 @@ final class ManagingTaxonsContext implements Context
     {
         $this->updatePage->open(['id' => $taxon->getId()]);
 
-        Assert::true($this->updatePage->hasResourceValues(['slug' => $slug]));
+        Assert::same($this->updatePage->getSlug(), $slug);
     }
 
     /**
@@ -296,6 +302,19 @@ final class ManagingTaxonsContext implements Context
     }
 
     /**
+     * @When I attach the :path image with :type type
+     * @When I attach the :path image with :type type to this taxon
+     * @When I attach the :path image
+     * @When I attach the :path image to this taxon
+     */
+    public function iAttachImageWithType(string $path, ?string $type = null): void
+    {
+        $currentPage = $this->resolveCurrentPage();
+
+        $currentPage->attachImage($path, $type);
+    }
+
+    /**
      * @Then I should see the taxon named :name in the list
      */
     public function iShouldSeeTheTaxonNamedInTheList($name)
@@ -304,20 +323,9 @@ final class ManagingTaxonsContext implements Context
     }
 
     /**
-     * @When I attach the :path image with :type type
-     * @When I attach the :path image
-     */
-    public function iAttachImageWithType($path, $type = null)
-    {
-        $currentPage = $this->resolveCurrentPage();
-
-        $currentPage->attachImage($path, $type);
-    }
-
-    /**
      * @Then /^(?:it|this taxon) should(?:| also) have an image with "([^"]*)" type$/
      */
-    public function thisTaxonShouldHaveAnImageWithType($type)
+    public function thisTaxonShouldHaveAnImageWithType(string $type): void
     {
         Assert::true($this->updatePage->isImageWithTypeDisplayed($type));
     }
@@ -333,9 +341,9 @@ final class ManagingTaxonsContext implements Context
     /**
      * @When /^I(?:| also) remove an image with "([^"]*)" type$/
      */
-    public function iRemoveAnImageWithType($code)
+    public function iRemoveAnImageWithType(string $type): void
     {
-        $this->updatePage->removeImageWithType($code);
+        $this->updatePage->removeImageWithType($type);
     }
 
     /**
@@ -430,6 +438,14 @@ final class ManagingTaxonsContext implements Context
     }
 
     /**
+     * @Then the last taxon on the list should be :taxonName
+     */
+    public function theLastTaxonOnTheListShouldBe(string $taxonName): void
+    {
+        Assert::same($this->createPage->getLastTaxonOnTheList(), $taxonName);
+    }
+
+    /**
      * @When I enable it
      */
     public function iEnableIt(): void
@@ -461,7 +477,7 @@ final class ManagingTaxonsContext implements Context
         Assert::false($this->updatePage->isEnabled());
     }
 
-    private function resolveCurrentPage(): CreateForParentPageInterface|CreatePageInterface|UpdatePageInterface|UpdateConfigurableProductPageInterface
+    private function resolveCurrentPage(): CreateForParentPageInterface|CreatePageInterface|SymfonyPageInterface|UpdatePageInterface
     {
         return $this->currentPageResolver->getCurrentPageWithForm([
             $this->createPage,

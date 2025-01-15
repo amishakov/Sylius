@@ -17,29 +17,20 @@ use Sylius\Bundle\ApiBundle\Command\IriToIdentifierConversionAwareInterface;
 use Sylius\Bundle\ApiBundle\Command\OrderTokenValueAwareInterface;
 use Sylius\Bundle\ApiBundle\Command\SubresourceIdAwareInterface;
 
-/** @experimental */
 class ChangePaymentMethod implements OrderTokenValueAwareInterface, SubresourceIdAwareInterface, IriToIdentifierConversionAwareInterface
 {
     /** @var string|null */
     public $orderTokenValue;
 
     /**
-     * @psalm-immutable
+     * @immutable
      *
      * @var string|null
      */
     public $paymentId;
 
-    /**
-     * @psalm-immutable
-     *
-     * @var string
-     */
-    public $paymentMethodCode;
-
-    public function __construct(string $paymentMethodCode)
+    public function __construct(public string $paymentMethodCode)
     {
-        $this->paymentMethodCode = $paymentMethodCode;
     }
 
     public function getOrderTokenValue(): ?string

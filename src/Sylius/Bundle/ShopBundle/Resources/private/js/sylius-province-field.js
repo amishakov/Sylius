@@ -8,9 +8,10 @@
  */
 
 import $ from 'jquery';
+import { sanitizeInput } from 'sylius/ui/sylius-sanitizer';
 
 const getProvinceInputValue = function getProvinceInputValue(valueSelector) {
-  return valueSelector == undefined ? '' : `value="${valueSelector}"`;
+  return valueSelector == undefined ? '' : `value="${sanitizeInput(valueSelector)}"`;
 };
 
 $.fn.extend({
@@ -61,7 +62,7 @@ $.fn.extend({
                 .replace('option value="" selected="selected"', 'option value=""')
                 .replace(`option ${provinceSelectValue}`, `option ${provinceSelectValue}" selected="selected"`)
             ));
-
+            provinceContainer.addClass('required');
             provinceContainer.removeAttr('data-loading');
 
             provinceContainer.fadeIn('fast', () => {

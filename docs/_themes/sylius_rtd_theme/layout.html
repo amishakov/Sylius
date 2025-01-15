@@ -13,6 +13,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
   {% block htmltitle %}
   <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
   {% endblock %}
@@ -99,6 +100,7 @@
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        <a href="https://docs.sylius.com/" target="_blank"><b>📖 2.0 Documentation</b></a>
         {% set toctree = toctree(maxdepth=2, collapse=False, includehidden=True) %}
         {% if toctree %}
             {{ toctree }}
@@ -106,11 +108,14 @@
             <!-- Local TOC -->
             <div class="local-toc">{{ toc }}</div>
         {% endif %}
-        <a href="https://sylius.com/roadmap" target="_blank"><div class="local-toc">🔔 Roadmap</div></a>
 
+        <a href="https://sylius.com/roadmap" target="_blank"><div class="local-toc">🔔 Roadmap</div></a>
         <div style="padding: 30px 0;">
+            <a href="https://sylius.com/plus/?utm_source=docs&utm_medium=cta&utm_campaign=plus" target="_blank">
+                <img src="{{ pathto('_static/img/plus.png', 1) }}" alt="Sylius Plus" />
+            </a>
             <a href="https://blackfire.io/docs/introduction?utm_source=sylius&utm_medium=docs&utm_campaign=profiler">
-                <img style="width: 237px;" src="{{ pathto('_static/img/blackfire.png', 1) }}" alt="Blackfire" />
+                <img src="{{ pathto('_static/img/blackfire.png', 1) }}" alt="Blackfire" />
             </a>
         </div>
       </div>

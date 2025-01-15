@@ -16,7 +16,7 @@ namespace Sylius\Behat\Context\Api\Shop;
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Client\ApiClientInterface;
 use Sylius\Behat\Client\RequestFactoryInterface;
-use Sylius\Behat\Client\ResponseChecker;
+use Sylius\Behat\Client\ResponseCheckerInterface;
 use Sylius\Behat\Context\Api\Resources;
 use Webmozart\Assert\Assert;
 
@@ -27,7 +27,7 @@ final class ContactContext implements Context
     public function __construct(
         private RequestFactoryInterface $requestFactory,
         private ApiClientInterface $client,
-        private ResponseChecker $responseChecker,
+        private ResponseCheckerInterface $responseChecker,
     ) {
     }
 
@@ -64,7 +64,7 @@ final class ContactContext implements Context
     {
         $request = $this->requestFactory->create(
             'shop',
-            Resources::CONTACT_REQUESTS,
+            Resources::CONTACT,
             'Authorization',
             $this->client->getToken(),
         );

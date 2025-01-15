@@ -37,4 +37,29 @@ final class ResponseContext implements Context
             ),
         );
     }
+
+    /**
+     * @Then I should be notified that it has been successfully uploaded
+     */
+    public function iShouldBeNotifiedThatItHasBeenSuccessfullyUploaded(): void
+    {
+        Assert::true(
+            $this->responseChecker->isCreationSuccessful($this->client->getLastResponse()),
+            sprintf(
+                'Resource could not be created: %s',
+                $this->responseChecker->getError($this->client->getLastResponse()),
+            ),
+        );
+    }
+
+    /**
+     * @Then I should be notified that I can no longer change payment method of this order
+     */
+    public function iShouldBeNotifiedThatICanNoLongerChangePaymentMethodOfThisOrder(): void
+    {
+        Assert::true($this->responseChecker->hasViolationWithMessage(
+            $this->client->getLastResponse(),
+            'You cannot change the payment method for a cancelled order.',
+        ));
+    }
 }

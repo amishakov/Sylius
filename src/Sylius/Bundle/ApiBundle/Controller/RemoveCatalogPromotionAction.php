@@ -20,7 +20,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-/** @experimental */
 final class RemoveCatalogPromotionAction
 {
     public function __construct(
@@ -30,8 +29,13 @@ final class RemoveCatalogPromotionAction
 
     public function __invoke(Request $request): Response
     {
+        $catalogPromotionCode = $request->attributes->get('code');
+        if (null === $catalogPromotionCode) {
+            return new JsonResponse(status: Response::HTTP_NOT_FOUND);
+        }
+
         try {
-            $this->catalogPromotionRemovalProcessor->removeCatalogPromotion($request->attributes->get('code'));
+            $this->catalogPromotionRemovalProcessor->removeCatalogPromotion($catalogPromotionCode);
 
             return new Response(status: Response::HTTP_ACCEPTED);
         } catch (CatalogPromotionNotFoundException) {

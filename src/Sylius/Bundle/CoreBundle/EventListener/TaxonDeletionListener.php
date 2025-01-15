@@ -14,8 +14,10 @@ declare(strict_types=1);
 namespace Sylius\Bundle\CoreBundle\EventListener;
 
 use Sylius\Bundle\CoreBundle\Provider\FlashBagProvider;
+use Sylius\Bundle\ResourceBundle\Event\ResourceControllerEvent;
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
+use Sylius\Component\Core\Promotion\Checker\TaxonInPromotionRuleCheckerInterface;
 use Sylius\Component\Core\Promotion\Updater\Rule\TaxonAwareRuleUpdaterInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -29,14 +31,22 @@ final class TaxonDeletionListener
     private array $ruleUpdaters;
 
     public function __construct(
-        private SessionInterface|RequestStack $requestStackOrSession,
+        private RequestStack|SessionInterface $requestStackOrSession,
         private ChannelRepositoryInterface $channelRepository,
+        private TaxonInPromotionRuleCheckerInterface $taxonInPromotionRuleChecker,
         TaxonAwareRuleUpdaterInterface ...$ruleUpdaters,
     ) {
         $this->ruleUpdaters = $ruleUpdaters;
 
         if ($requestStackOrSession instanceof SessionInterface) {
-            trigger_deprecation('sylius/user-bundle', '1.12', sprintf('Passing an instance of %s as constructor argument for %s is deprecated as of Sylius 1.12 and will be removed in 2.0. Pass an instance of %s instead.', SessionInterface::class, self::class, RequestStack::class));
+            trigger_deprecation(
+                'sylius/user-bundle',
+                '1.12',
+                'Passing an instance of %s as constructor argument for %s is deprecated and will be removed in Sylius 2.0. Pass an instance of %s instead.',
+                SessionInterface::class,
+                self::class,
+                RequestStack::class,
+            );
         }
     }
 
@@ -51,6 +61,18 @@ final class TaxonDeletionListener
             $flashes = FlashBagProvider::getFlashBag($this->requestStackOrSession);
             $flashes->add('error', 'sylius.taxon.menu_taxon_delete');
 
+            $event->stopPropagation();
+        }
+    }
+
+    public function protectFromRemovingTaxonInUseByPromotionRule(ResourceControllerEvent $event): void
+    {
+        $taxon = $event->getSubject();
+        Assert::isInstanceOf($taxon, TaxonInterface::class);
+
+        if ($this->taxonInPromotionRuleChecker->isInUse($taxon)) {
+            $event->setMessageType('error');
+            $event->setMessage('sylius.taxon.in_use_by_promotion_rule');
             $event->stopPropagation();
         }
     }

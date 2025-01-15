@@ -54,6 +54,12 @@ interface UpdatePageInterface extends BaseUpdatePageInterface
 
     public function removeActionFieldValue(string $channelCode, string $field): void;
 
+    public function getItemPercentageDiscountActionValue(string $channelCode): string;
+
+    public function specifyOrderPercentageDiscountActionValue(string $discount): void;
+
+    public function getOrderPercentageDiscountActionValue(): string;
+
     public function removeRuleAmount(string $channelCode): void;
 
     public function getActionValidationErrorsCount(string $channelCode): int;

@@ -15,6 +15,7 @@ namespace Sylius\Component\Core\Test\Services;
 
 use Sylius\Component\Channel\Factory\ChannelFactoryInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
+use Sylius\Component\Core\Model\ShopBillingData;
 use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
@@ -39,10 +40,10 @@ final class DefaultChannelFactory implements DefaultChannelFactoryInterface
     ) {
     }
 
-    public function create(?string $code = null, ?string $name = null, ?string $currencyCode = null): array
+    public function create(?string $code = null, ?string $name = null, ?string $currencyCode = null, ?string $localeCode = null): array
     {
         $currency = $this->provideCurrency($currencyCode);
-        $locale = $this->provideLocale();
+        $locale = $this->provideLocale($localeCode);
 
         /** @var ChannelInterface $channel */
         $channel = $this->channelFactory->createNamed($name ?: self::DEFAULT_CHANNEL_NAME);
@@ -54,6 +55,9 @@ final class DefaultChannelFactory implements DefaultChannelFactoryInterface
 
         $channel->addLocale($locale);
         $channel->setDefaultLocale($locale);
+        if ($channel->getShopBillingData() === null) {
+            $channel->setShopBillingData(new ShopBillingData());
+        }
 
         $this->channelRepository->add($channel);
 
@@ -82,7 +86,7 @@ final class DefaultChannelFactory implements DefaultChannelFactoryInterface
         return $currency;
     }
 
-    private function provideLocale(): LocaleInterface
+    private function provideLocale(?string $localeCode = null): LocaleInterface
     {
         /** @var LocaleInterface|null $locale */
         $locale = $this->localeRepository->findOneBy(['code' => $this->defaultLocaleCode]);
@@ -90,7 +94,7 @@ final class DefaultChannelFactory implements DefaultChannelFactoryInterface
         if (null === $locale) {
             /** @var LocaleInterface $locale */
             $locale = $this->localeFactory->createNew();
-            $locale->setCode($this->defaultLocaleCode);
+            $locale->setCode($localeCode ?? $this->defaultLocaleCode);
 
             $this->localeRepository->add($locale);
         }

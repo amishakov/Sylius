@@ -13,27 +13,28 @@ declare(strict_types=1);
 
 namespace Sylius\Tests\Api\Shop;
 
-use Sylius\Bundle\ApiBundle\Command\Cart\AddItemToCart;
-use Sylius\Bundle\ApiBundle\Command\Cart\PickupCart;
-use Sylius\Bundle\ApiBundle\Command\Checkout\UpdateCart;
-use Sylius\Component\Addressing\Model\CountryInterface;
-use Sylius\Component\Core\Model\Address;
-use Sylius\Component\Core\Model\AdjustmentInterface;
-use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Sylius\Tests\Api\JsonApiTestCase;
 use Sylius\Tests\Api\Utils\OrderPlacerTrait;
 use Sylius\Tests\Api\Utils\ShopUserLoginTrait;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 final class OrdersTest extends JsonApiTestCase
 {
     use ShopUserLoginTrait;
     use OrderPlacerTrait;
 
+    protected function setUp(): void
+    {
+        $this->setUpOrderPlacer();
+
+        parent::setUp();
+    }
+
     /** @test */
     public function it_gets_an_order(): void
     {
+        $this->setUpDefaultGetHeaders();
         $this->loadFixturesFromFiles([
             'channel.yaml',
             'cart.yaml',
@@ -43,79 +44,77 @@ final class OrdersTest extends JsonApiTestCase
         ]);
 
         $tokenValue = 'nAWw2jewpA';
+        $this->placeOrder($tokenValue);
+        $this->requestGet(sprintf('/api/v2/shop/orders/%s', $tokenValue));
 
-        /** @var MessageBusInterface $commandBus */
-        $commandBus = self::getContainer()->get('sylius.command_bus');
-
-        $pickupCartCommand = new PickupCart($tokenValue);
-        $pickupCartCommand->setChannelCode('WEB');
-        $commandBus->dispatch($pickupCartCommand);
-
-        $addItemToCartCommand = new AddItemToCart('MUG_BLUE', 3);
-        $addItemToCartCommand->setOrderTokenValue($tokenValue);
-        $commandBus->dispatch($addItemToCartCommand);
-
-        $address = new Address();
-        $address->setFirstName('John');
-        $address->setLastName('Doe');
-        $address->setCity('New York');
-        $address->setStreet('Avenue');
-        $address->setCountryCode('US');
-        $address->setPostcode('90000');
-
-        $updateCartCommand = new UpdateCart('sylius@example.com', $address);
-        $updateCartCommand->setOrderTokenValue($tokenValue);
-        $commandBus->dispatch($updateCartCommand);
-
-        $this->client->request(method: 'GET', uri: '/api/v2/shop/orders/nAWw2jewpA', server: self::CONTENT_TYPE_HEADER);
-        $response = $this->client->getResponse();
-
-        $this->assertResponse($response, 'shop/get_order_response', Response::HTTP_OK);
+        $this->assertResponse(
+            $this->client->getResponse(),
+            'shop/order/get_order',
+        );
     }
 
     /** @test */
-    public function it_gets_an_order_as_a_guest_with_a_customer_that_is_already_registered(): void
+    public function it_does_not_allow_to_get_another_customers_order(): void
     {
-        $this->loadFixturesFromFiles(['authentication/customer.yaml', 'channel.yaml', 'cart.yaml', 'country.yaml', 'shipping_method.yaml', 'payment_method.yaml']);
+        $this->setUpDefaultGetHeaders();
+        $this->loadFixturesFromFiles([
+            'channel.yaml',
+            'cart.yaml',
+            'country.yaml',
+            'customer.yaml',
+            'shipping_method.yaml',
+            'payment_method.yaml',
+        ]);
 
         $tokenValue = 'nAWw2jewpA';
-
-        /** @var MessageBusInterface $commandBus */
-        $commandBus = self::getContainer()->get('sylius.command_bus');
-
-        $pickupCartCommand = new PickupCart($tokenValue);
-        $pickupCartCommand->setChannelCode('WEB');
-        $commandBus->dispatch($pickupCartCommand);
-
-        $addItemToCartCommand = new AddItemToCart('MUG_BLUE', 3);
-        $addItemToCartCommand->setOrderTokenValue($tokenValue);
-        $commandBus->dispatch($addItemToCartCommand);
-
-        $address = new Address();
-        $address->setFirstName('John');
-        $address->setLastName('Doe');
-        $address->setCity('New York');
-        $address->setStreet('Avenue');
-        $address->setCountryCode('US');
-        $address->setPostcode('90000');
-
-        $updateCartCommand = new UpdateCart('oliver@doe.com', $address);
-        $updateCartCommand->setOrderTokenValue($tokenValue);
-        $commandBus->dispatch($updateCartCommand);
-
-        $this->client->request(
-            method: 'GET',
-            uri: '/api/v2/shop/orders/nAWw2jewpA',
-            server: self::CONTENT_TYPE_HEADER,
+        $this->placeOrder($tokenValue);
+        $this->requestGet(
+            uri: sprintf('/api/v2/shop/orders/%s', $tokenValue),
+            headers: $this->headerBuilder()->withShopUserAuthorization('oliver@doe.com')->build(),
         );
-        $response = $this->client->getResponse();
 
-        $this->assertResponse($response, 'shop/get_order_response', Response::HTTP_OK);
+        $this->assertResponseCode($this->client->getResponse(), Response::HTTP_NOT_FOUND);
+    }
+
+    /** @test */
+    public function it_gets_orders(): void
+    {
+        $this->setUpDefaultGetHeaders();
+        $this->loadFixturesFromFiles([
+            'channel.yaml',
+            'cart.yaml',
+            'country.yaml',
+            'customer.yaml',
+            'shipping_method.yaml',
+            'payment_method.yaml',
+        ]);
+
+        $this->placeOrder('nAWw2jewpA', 'oliver@doe.com');
+        $this->placeOrder('nAWw2jewpB', 'oliver@doe.com');
+        $this->requestGet(
+            uri: '/api/v2/shop/orders',
+            headers: $this->headerBuilder()->withShopUserAuthorization('oliver@doe.com')->build(),
+        );
+
+        $this->assertResponse(
+            $this->client->getResponse(),
+            'shop/order/get_orders',
+        );
+    }
+
+    /** @test */
+    public function it_does_not_allow_to_get_orders_for_guest(): void
+    {
+        $this->setUpDefaultGetHeaders();
+        $this->requestGet('/api/v2/shop/orders');
+
+        $this->assertResponseCode($this->client->getResponse(), Response::HTTP_UNAUTHORIZED);
     }
 
     /** @test */
     public function it_gets_order_items(): void
     {
+        $this->setUpDefaultGetHeaders();
         $this->loadFixturesFromFiles([
             'channel.yaml',
             'cart.yaml',
@@ -125,318 +124,183 @@ final class OrdersTest extends JsonApiTestCase
         ]);
 
         $tokenValue = 'nAWw2jewpA';
+        $this->placeOrder($tokenValue);
 
-        /** @var MessageBusInterface $commandBus */
-        $commandBus = self::getContainer()->get('sylius.command_bus');
+        $this->requestGet(sprintf('/api/v2/shop/orders/%s/items', $tokenValue));
 
-        $pickupCartCommand = new PickupCart($tokenValue);
-        $pickupCartCommand->setChannelCode('WEB');
-        $commandBus->dispatch($pickupCartCommand);
-
-        $addItemToCartCommand = new AddItemToCart('MUG_BLUE', 3);
-        $addItemToCartCommand->setOrderTokenValue($tokenValue);
-        $commandBus->dispatch($addItemToCartCommand);
-
-        $this->client->request(
-            method: 'GET',
-            uri: '/api/v2/shop/orders/nAWw2jewpA/items',
-            server: self::CONTENT_TYPE_HEADER,
+        $this->assertResponse(
+            $this->client->getResponse(),
+            'shop/order/get_order_items',
         );
-        $response = $this->client->getResponse();
-
-        $this->assertResponse($response, 'shop/get_order_items_response', Response::HTTP_OK);
     }
 
     /** @test */
-    public function it_gets_order_adjustments(): void
+    public function it_returns_nothing_if_visitor_tries_to_get_the_items_of_a_user_order(): void
     {
+        $this->setUpDefaultGetHeaders();
         $this->loadFixturesFromFiles([
             'channel.yaml',
             'cart.yaml',
             'country.yaml',
-            'shipping_method.yaml',
-            'payment_method.yaml',
-        ]);
-
-        $tokenValue = 'nAWw2jewpA';
-
-        /** @var MessageBusInterface $commandBus */
-        $commandBus = self::getContainer()->get('sylius.command_bus');
-
-        $pickupCartCommand = new PickupCart($tokenValue);
-        $pickupCartCommand->setChannelCode('WEB');
-        $commandBus->dispatch($pickupCartCommand);
-
-        $addItemToCartCommand = new AddItemToCart('MUG_BLUE', 3);
-        $addItemToCartCommand->setOrderTokenValue($tokenValue);
-        $commandBus->dispatch($addItemToCartCommand);
-
-        $this->client->request(
-            method: 'GET',
-            uri: '/api/v2/shop/orders/nAWw2jewpA/adjustments',
-            server: self::CONTENT_TYPE_HEADER,
-        );
-        $response = $this->client->getResponse();
-
-        $this->assertResponse($response, 'shop/get_order_adjustments_response', Response::HTTP_OK);
-    }
-
-    /** @test */
-    public function it_gets_order_item_adjustments(): void
-    {
-        $this->loadFixturesFromFiles([
-            'channel.yaml',
-            'cart.yaml',
-            'country.yaml',
-            'shipping_method.yaml',
-            'payment_method.yaml',
-        ]);
-
-        $tokenValue = 'nAWw2jewpA';
-
-        /** @var MessageBusInterface $commandBus */
-        $commandBus = self::getContainer()->get('sylius.command_bus');
-
-        $pickupCartCommand = new PickupCart($tokenValue);
-        $pickupCartCommand->setChannelCode('WEB');
-        $commandBus->dispatch($pickupCartCommand);
-
-        $addItemToCartCommand = new AddItemToCart('MUG_BLUE', 3);
-        $addItemToCartCommand->setOrderTokenValue($tokenValue);
-        $commandBus->dispatch($addItemToCartCommand);
-
-        /** @var OrderInterface $order */
-        $order = $this->get('sylius.repository.order')->findCartByTokenValue($tokenValue);
-        $orderItem = $order->getItems()->first();
-
-        /** @var AdjustmentInterface $adjustment */
-        $adjustment = $this->get('sylius.factory.adjustment')->createNew();
-
-        $adjustment->setType(AdjustmentInterface::ORDER_ITEM_PROMOTION_ADJUSTMENT);
-        $adjustment->setAmount(200);
-        $adjustment->setNeutral(false);
-        $adjustment->setLabel('Test Promotion Adjustment');
-
-        $orderItem->addAdjustment($adjustment);
-        $this->get('sylius.manager.order')->flush();
-
-        $this->client->request(
-            method: 'GET',
-            uri: '/api/v2/shop/orders/nAWw2jewpA/items/' . $order->getItems()->first()->getId() . '/adjustments',
-            server: self::CONTENT_TYPE_HEADER,
-        );
-        $response = $this->client->getResponse();
-
-        $this->assertResponse($response, 'shop/get_order_item_adjustments_response', Response::HTTP_OK);
-    }
-
-    /** @test */
-    public function it_allows_to_add_items_to_order(): void
-    {
-        $this->loadFixturesFromFiles([
-            'channel.yaml',
-            'cart.yaml',
-            'country.yaml',
-            'shipping_method.yaml',
-            'payment_method.yaml',
-        ]);
-
-        $tokenValue = 'nAWw2jewpA';
-
-        /** @var MessageBusInterface $commandBus */
-        $commandBus = self::getContainer()->get('sylius.command_bus');
-
-        $pickupCartCommand = new PickupCart($tokenValue);
-        $pickupCartCommand->setChannelCode('WEB');
-        $commandBus->dispatch($pickupCartCommand);
-
-        $this->client->request(
-            method: 'POST',
-            uri: '/api/v2/shop/orders/nAWw2jewpA/items',
-            server: self::CONTENT_TYPE_HEADER,
-            content: json_encode([
-                'productVariant' => '/api/v2/shop/product-variants/MUG_BLUE',
-                'quantity' => 3,
-            ], JSON_THROW_ON_ERROR),
-        );
-        $response = $this->client->getResponse();
-
-        $this->assertResponse($response, 'shop/add_item_response', Response::HTTP_CREATED);
-    }
-
-    /** @test */
-    public function it_does_not_get_orders_collection_for_guest(): void
-    {
-        $this->client->request(method: 'GET', uri: '/api/v2/shop/orders', server: self::CONTENT_TYPE_HEADER);
-        $response = $this->client->getResponse();
-
-        $this->assertResponse($response, 'shop/error/jwt_token_not_found', Response::HTTP_UNAUTHORIZED);
-    }
-
-    /** @test */
-    public function it_allows_to_patch_orders_payment_method(): void
-    {
-        $this->loadFixturesFromFiles([
             'authentication/customer.yaml',
-            'channel.yaml',
-            'cart.yaml',
-            'country.yaml',
             'shipping_method.yaml',
             'payment_method.yaml',
         ]);
 
-        $authentication = $this->logInShopUser('oliver@doe.com');
         $tokenValue = 'nAWw2jewpA';
-
         $this->placeOrder($tokenValue, 'oliver@doe.com');
 
-        $this->client->request(
-            method: 'GET',
-            uri: '/api/v2/shop/orders/nAWw2jewpA',
-            server: array_merge($authentication, self::CONTENT_TYPE_HEADER),
+        $this->requestGet(sprintf('/api/v2/shop/orders/%s/items', $tokenValue));
+
+        $this->assertResponse($this->client->getResponse(), 'shop/get_empty_order_items_response');
+    }
+
+    /** @test */
+    public function it_prevents_visitors_from_getting_the_adjustments_of_a_user_order(): void
+    {
+        $this->setUpDefaultGetHeaders();
+        $this->loadFixturesFromFiles([
+            'channel.yaml',
+            'cart.yaml',
+            'country.yaml',
+            'authentication/customer.yaml',
+            'shipping_method.yaml',
+            'payment_method.yaml',
+        ]);
+
+        $tokenValue = 'nAWw2jewpA';
+        $this->placeOrder($tokenValue, 'oliver@doe.com');
+
+        $this->requestGet(sprintf('/api/v2/shop/orders/%s/adjustments', $tokenValue));
+
+        $this->assertResponseCode($this->client->getResponse(), Response::HTTP_UNAUTHORIZED);
+    }
+
+    /** @test */
+    public function it_update_payment_method_on_order(): void
+    {
+        $this->setUpDefaultGetHeaders();
+        $fixtures = $this->loadFixturesFromFiles([
+            'channel.yaml',
+            'cart.yaml',
+            'country.yaml',
+            'customer.yaml',
+            'shipping_method.yaml',
+            'payment_method.yaml',
+        ]);
+
+        /** @var PaymentMethodInterface $paymentMethod */
+        $paymentMethod = $fixtures['payment_method_bank_transfer'];
+
+        $tokenValue = 'nAWw2jewpA';
+        $this->placeOrder($tokenValue, 'oliver@doe.com');
+
+        $this->requestGet(
+            uri: sprintf('/api/v2/shop/orders/%s', $tokenValue),
+            headers: $this->headerBuilder()->withShopUserAuthorization('oliver@doe.com')->build(),
         );
         $orderResponse = json_decode($this->client->getResponse()->getContent(), true);
 
         $this->client->request(
             method: 'PATCH',
-            uri: sprintf('/api/v2/shop/account/orders/nAWw2jewpA/payments/%s', $orderResponse['payments'][0]['id']),
-            server: array_merge($authentication, self::PATCH_CONTENT_TYPE_HEADER),
+            uri: sprintf('/api/v2/shop/account/orders/%s/payments/%s', $tokenValue, $orderResponse['payments'][0]['id']),
+            server: $this->headerBuilder()->withMergePatchJsonContentType()->withJsonLdAccept()->withShopUserAuthorization('oliver@doe.com')->build(),
             content: json_encode([
-                'paymentMethod' => '/api/v2/shop/payment-methods/CASH_ON_DELIVERY',
-            ], JSON_THROW_ON_ERROR),
+                'paymentMethod' => $paymentMethod->getCode(),
+            ], \JSON_THROW_ON_ERROR),
         );
-        $response = $this->client->getResponse();
 
-        $this->assertResponse($response, 'shop/updated_payment_method_on_order_response', Response::HTTP_OK);
+        $this->assertResponse(
+            $this->client->getResponse(),
+            'shop/order/update_payment_method',
+        );
     }
 
     /** @test */
-    public function it_creates_empty_cart_with_provided_locale(): void
+    public function it_does_not_allow_to_update_payment_method_for_cancelled_order(): void
     {
-        $this->loadFixturesFromFiles(['channel.yaml', 'cart.yaml']);
-
-        $this->client->request(
-            method: 'POST',
-            uri: '/api/v2/shop/orders',
-            server: array_merge(['HTTP_ACCEPT_LANGUAGE' => 'pl_PL'], self::CONTENT_TYPE_HEADER),
-            content: '{}',
-        );
-        $response = $this->client->getResponse();
-
-        $this->assertResponse($response, 'shop/create_cart_response', Response::HTTP_CREATED);
-    }
-
-    /** @test */
-    public function it_creates_empty_cart_with_default_locale(): void
-    {
-        $this->loadFixturesFromFiles(['channel.yaml', 'cart.yaml']);
-
-        $this->client->request(
-            method: 'POST',
-            uri: '/api/v2/shop/orders',
-            server: self::CONTENT_TYPE_HEADER,
-            content: '{}',
-        );
-        $response = $this->client->getResponse();
-
-        $this->assertResponse($response, 'shop/create_cart_with_default_locale_response', Response::HTTP_CREATED);
-    }
-
-    /** @test */
-    public function it_allows_to_replace_orders_address(): void
-    {
+        $this->setUpDefaultGetHeaders();
         $fixtures = $this->loadFixturesFromFiles([
             'channel.yaml',
             'cart.yaml',
             'country.yaml',
+            'customer.yaml',
+            'shipping_method.yaml',
+            'payment_method.yaml',
+        ]);
+
+        /** @var PaymentMethodInterface $paymentMethod */
+        $paymentMethod = $fixtures['payment_method_bank_transfer'];
+
+        $tokenValue = 'nAWw2jewpA';
+        $this->placeOrder($tokenValue, 'oliver@doe.com');
+        $this->cancelOrder($tokenValue);
+
+        $this->requestGet(
+            uri: sprintf('/api/v2/shop/orders/%s', $tokenValue),
+            headers: $this->headerBuilder()->withShopUserAuthorization('oliver@doe.com')->build(),
+        );
+        $orderResponse = json_decode($this->client->getResponse()->getContent(), true);
+
+        $this->client->request(
+            method: 'PATCH',
+            uri: sprintf('/api/v2/shop/account/orders/%s/payments/%s', $tokenValue, $orderResponse['payments'][0]['id']),
+            server: $this->headerBuilder()->withMergePatchJsonContentType()->withJsonLdAccept()->withShopUserAuthorization('oliver@doe.com')->build(),
+            content: json_encode([
+                'paymentMethod' => $paymentMethod->getCode(),
+            ], \JSON_THROW_ON_ERROR),
+        );
+
+        $this->assertResponseViolations(
+            $this->client->getResponse(),
+            [
+                ['propertyPath' => '', 'message' => 'You cannot change the payment method for a cancelled order.'],
+            ],
+        );
+    }
+
+    /** @test */
+    public function it_does_not_allow_to_get_payment_configuration_for_invalid_payment(): void
+    {
+        $this->setUpDefaultGetHeaders();
+        $fixtures = $this->loadFixturesFromFiles([
+            'channel.yaml',
+            'cart.yaml',
+            'country.yaml',
+            'customer.yaml',
             'shipping_method.yaml',
             'payment_method.yaml',
         ]);
 
         $tokenValue = 'nAWw2jewpA';
+        $this->placeOrder($tokenValue);
 
-        /** @var MessageBusInterface $commandBus */
-        $commandBus = self::getContainer()->get('sylius.command_bus');
+        $this->requestGet(sprintf('/api/v2/shop/orders/%s/payments/%s/configuration', $tokenValue, 'invalid-payment-id'));
 
-        $pickupCartCommand = new PickupCart($tokenValue);
-        $pickupCartCommand->setChannelCode('WEB');
-        $commandBus->dispatch($pickupCartCommand);
-        $addItemToCartCommand = new AddItemToCart('MUG_BLUE', 3);
-        $addItemToCartCommand->setOrderTokenValue($tokenValue);
-        $commandBus->dispatch($addItemToCartCommand);
+        $this->assertResponseCode($this->client->getResponse(), Response::HTTP_NOT_FOUND);
+    }
 
-        /** @var CountryInterface $country */
-        $country = $fixtures['country_US'];
+    /** @test */
+    public function it_does_not_allow_delete_completed_order(): void
+    {
+        $this->setUpDefaultGetHeaders();
+        $fixtures = $this->loadFixturesFromFiles([
+            'channel.yaml',
+            'cart.yaml',
+            'country.yaml',
+            'customer.yaml',
+            'shipping_method.yaml',
+            'payment_method.yaml',
+        ]);
 
-        $billingAddress = [
-            'firstName'=> 'Jane',
-            'lastName'=> 'Doe',
-            'phoneNumber'=> '666111333',
-            'company'=> 'Potato Corp.',
-            'countryCode'=> $country->getCode(),
-            'provinceCode' => 'US-MI',
-            'street'=> 'Top secret',
-            'city'=> 'Nebraska',
-            'postcode'=> '12343',
-        ];
+        $tokenValue = 'nAWw2jewpA';
+        $this->placeOrder($tokenValue, 'oliver@doe.com');
 
-        $this->client->request(
-            method: 'PUT',
-            uri: '/api/v2/shop/orders/nAWw2jewpA',
-            server: self::CONTENT_TYPE_HEADER,
-            content: json_encode([
-                'email' => 'oliver@doe.com',
-                'billingAddress' => $billingAddress,
-            ], JSON_THROW_ON_ERROR),
+        $this->requestDelete(
+            uri: sprintf('/api/v2/shop/orders/%s', $tokenValue),
+            headers: $this->headerBuilder()->withShopUserAuthorization('oliver@doe.com')->build(),
         );
-        $response = $this->client->getResponse();
 
-        $this->assertResponse($response, 'shop/updated_billing_address_on_order_response', Response::HTTP_OK);
-    }
-
-    /** @test */
-    public function it_removes_item_from_the_cart(): void
-    {
-        $this->loadFixturesFromFiles(['channel.yaml', 'cart.yaml']);
-
-        $tokenValue = 'nAWw2jewpA';
-
-        /** @var MessageBusInterface $commandBus */
-        $commandBus = self::getContainer()->get('sylius.command_bus');
-
-        $pickupCartCommand = new PickupCart($tokenValue);
-        $pickupCartCommand->setChannelCode('WEB');
-        $commandBus->dispatch($pickupCartCommand);
-
-        $addItemToCartCommand = new AddItemToCart('MUG_BLUE', 3);
-        $addItemToCartCommand->setOrderTokenValue($tokenValue);
-        $commandBus->dispatch($addItemToCartCommand);
-
-        $this->client->request('GET', sprintf('/api/v2/shop/orders/%s', $tokenValue));
-        $itemId = json_decode($this->client->getResponse()->getContent(), true)['items'][0]['id'];
-
-        $this->client->request('DELETE', sprintf('/api/v2/shop/orders/%s/items/%s', $tokenValue, $itemId));
-
-        $this->assertResponseCode($this->client->getResponse(), Response::HTTP_NO_CONTENT);
-    }
-
-    /** @test */
-    public function it_returns_unprocessable_entity_status_if_tries_to_remove_an_item_that_not_exist_in_the_order(): void
-    {
-        $this->loadFixturesFromFiles(['channel.yaml', 'cart.yaml']);
-
-        $tokenValue = 'nAWw2jewpA';
-
-        /** @var MessageBusInterface $commandBus */
-        $commandBus = self::getContainer()->get('sylius.command_bus');
-
-        $pickupCartCommand = new PickupCart($tokenValue);
-        $pickupCartCommand->setChannelCode('WEB');
-        $commandBus->dispatch($pickupCartCommand);
-        $nonExistingOrderItemId = 123;
-
-        $this->client->request('DELETE', sprintf('/api/v2/shop/orders/%s/items/%s', $tokenValue, $nonExistingOrderItemId));
-
-        $this->assertResponseCode($this->client->getResponse(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        $this->assertResponseCode($this->client->getResponse(), Response::HTTP_NOT_FOUND);
     }
 }

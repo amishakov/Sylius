@@ -95,11 +95,7 @@ class User implements UserInterface, \Stringable
      */
     protected $roles = [UserInterface::DEFAULT_ROLE];
 
-    /**
-     * @var Collection|UserOAuthInterface[]
-     *
-     * @psalm-var Collection<array-key, UserOAuthInterface>
-     */
+    /** @var Collection<array-key, UserOAuthInterface> */
     protected $oauthAccounts;
 
     /** @var string|null */
@@ -124,7 +120,6 @@ class User implements UserInterface, \Stringable
         $this->enabled = false;
     }
 
-    /** @psalm-suppress RedundantCastGivenDocblockType */
     public function __toString(): string
     {
         return (string) $this->getUsername();
@@ -383,6 +378,11 @@ class User implements UserInterface, \Stringable
         $this->encoderName = $encoderName;
     }
 
+    public function getPasswordHasherName(): ?string
+    {
+        return $this->getEncoderName();
+    }
+
     /**
      * The serialized data have to contain the fields used by the equals method and the username.
      */
@@ -403,7 +403,7 @@ class User implements UserInterface, \Stringable
     /**
      * @internal
      *
-     * @deprecated since 1.11 and will be removed in Sylius 2.0, use \Sylius\Component\User\Model\User::__serialize() or \serialize($user) in PHP 8.1 instead
+     * @deprecated since Sylius 1.11 and will be removed in Sylius 2.0, use \Sylius\Component\User\Model\User::__serialize() or \serialize($user) in PHP 8.1 instead
      */
     public function serialize(): string
     {
@@ -433,7 +433,7 @@ class User implements UserInterface, \Stringable
      *
      * @internal
      *
-     * @deprecated since 1.11 and will be removed in Sylius 2.0, use \Sylius\Component\User\Model\User::__unserialize() or \unserialize($serialized) in PHP 8.1 instead
+     * @deprecated since Sylius 1.11 and will be removed in Sylius 2.0, use \Sylius\Component\User\Model\User::__unserialize() or \unserialize($serialized) in PHP 8.1 instead
      */
     public function unserialize($serialized): void
     {

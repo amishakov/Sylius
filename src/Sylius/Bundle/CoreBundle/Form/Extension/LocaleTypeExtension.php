@@ -40,7 +40,6 @@ final class LocaleTypeExtension extends AbstractTypeExtension
             if ($locale instanceof LocaleInterface && null !== $locale->getCode()) {
                 $options['disabled'] = true;
 
-                /** @psalm-suppress InvalidArrayOffset */
                 $options['choices'] = [$this->getLocaleName($locale->getCode()) => $locale->getCode()];
             } else {
                 $options['choices'] = array_flip($this->getAvailableLocales());
@@ -49,11 +48,6 @@ final class LocaleTypeExtension extends AbstractTypeExtension
             $form = $event->getForm();
             $form->add('code', \Symfony\Component\Form\Extension\Core\Type\LocaleType::class, $options);
         });
-    }
-
-    public function getExtendedType(): string
-    {
-        return LocaleType::class;
     }
 
     public static function getExtendedTypes(): iterable

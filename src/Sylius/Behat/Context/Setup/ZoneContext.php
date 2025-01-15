@@ -85,7 +85,7 @@ final class ZoneContext implements Context
      * @Given the store has a zone :zoneName with code :code
      * @Given the store also has a zone :zoneName with code :code
      */
-    public function theStoreHasAZoneWithCode(string $zoneName, string $code = null): void
+    public function theStoreHasAZoneWithCode(string $zoneName, ?string $code = null): void
     {
         $this->saveZone($this->createZone($zoneName, $code, Scope::ALL), 'zone');
     }
@@ -190,9 +190,6 @@ final class ZoneContext implements Context
         return $zoneMember;
     }
 
-    /**
-     * @param string $scope
-     */
     private function createZone(string $name, ?string $code = null, ?string $scope = Scope::ALL): ZoneInterface
     {
         $zone = $this->zoneFactory->createTyped(ZoneInterface::TYPE_ZONE);

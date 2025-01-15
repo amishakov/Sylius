@@ -35,10 +35,12 @@ final class ProductVariantTypeExtension extends AbstractTypeExtension
         $builder
             ->add('version', HiddenType::class)
             ->add('tracked', CheckboxType::class, [
+                'required' => false,
                 'label' => 'sylius.form.variant.tracked',
                 'help' => 'sylius.form.variant.tracked_help',
             ])
             ->add('shippingRequired', CheckboxType::class, [
+                'required' => false,
                 'label' => 'sylius.form.variant.shipping_required',
             ])
             ->add('onHand', IntegerType::class, [
@@ -89,11 +91,6 @@ final class ProductVariantTypeExtension extends AbstractTypeExtension
                 'label' => 'sylius.form.variant.price',
             ]);
         });
-    }
-
-    public function getExtendedType(): string
-    {
-        return ProductVariantType::class;
     }
 
     public static function getExtendedTypes(): iterable

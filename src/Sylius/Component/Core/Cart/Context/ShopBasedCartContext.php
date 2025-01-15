@@ -24,9 +24,10 @@ use Sylius\Component\Locale\Context\LocaleNotFoundException;
 use Sylius\Component\Order\Context\CartContextInterface;
 use Sylius\Component\Order\Context\CartNotFoundException;
 use Sylius\Component\Order\Model\OrderInterface as BaseOrderInterface;
+use Symfony\Contracts\Service\ResetInterface;
 use Webmozart\Assert\Assert;
 
-final class ShopBasedCartContext implements CartContextInterface
+final class ShopBasedCartContext implements CartContextInterface, ResetInterface
 {
     private CartContextInterface $cartContext;
 
@@ -46,7 +47,11 @@ final class ShopBasedCartContext implements CartContextInterface
         $this->createdByGuestFlagResolver = $createdByGuestFlagResolver;
 
         if ($createdByGuestFlagResolver === null) {
-            @trigger_error('Not passing createdByGuestFlagResolver through constructor is deprecated in Sylius 1.10.9 and it will be prohibited in Sylius 2.0');
+            trigger_deprecation(
+                'sylius/core',
+                '1.10.9',
+                'Not passing a $createdByGuestFlagResolver through constructor is deprecated and will be prohibited in Sylius 2.0',
+            );
         }
     }
 

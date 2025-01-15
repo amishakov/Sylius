@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
+use Behat\Step\Given;
 use Doctrine\Persistence\ObjectManager;
 use Sylius\Behat\Service\Setter\ChannelContextSetterInterface;
 use Sylius\Behat\Service\SharedStorageInterface;
@@ -25,9 +26,13 @@ use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ShopBillingData;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Core\Test\Services\DefaultChannelFactoryInterface;
+use Sylius\Component\Locale\Model\LocaleInterface;
 
 final class ChannelContext implements Context
 {
+    /**
+     * @param ChannelRepositoryInterface<ChannelInterface> $channelRepository
+     */
     public function __construct(
         private SharedStorageInterface $sharedStorage,
         private ChannelContextSetterInterface $channelContextSetter,
@@ -66,7 +71,7 @@ final class ChannelContext implements Context
     /**
      * @Given the store operates on a single channel in "United States"
      */
-    public function storeOperatesOnASingleChannelInUnitedStates()
+    public function storeOperatesOnASingleChannelInUnitedStates(): void
     {
         $defaultData = $this->unitedStatesChannelFactory->create();
 
@@ -75,9 +80,9 @@ final class ChannelContext implements Context
     }
 
     /**
-     * @Given the store operates on a single channel in the "United States" named :channelIdentifier
+     * @Given the store operates on a single channel in the "United States" named :channelName
      */
-    public function storeOperatesOnASingleChannelInTheUnitedStatesNamed(string $channelName)
+    public function storeOperatesOnASingleChannelInTheUnitedStatesNamed(string $channelName): void
     {
         $channelCode = StringInflector::nameToLowercaseCode($channelName);
         $defaultData = $this->unitedStatesChannelFactory->create($channelCode, $channelName);
@@ -90,9 +95,20 @@ final class ChannelContext implements Context
      * @Given the store operates on a single channel
      * @Given the store operates on a single channel in :currencyCode currency
      */
-    public function storeOperatesOnASingleChannel($currencyCode = null)
+    public function storeOperatesOnASingleChannel(?string $currencyCode = null): void
     {
         $defaultData = $this->defaultChannelFactory->create(null, null, $currencyCode);
+
+        $this->sharedStorage->setClipboard($defaultData);
+        $this->sharedStorage->set('channel', $defaultData['channel']);
+    }
+
+    /**
+     * @Given the store operates on a single channel in :localeCode locale
+     */
+    public function storeOperatesOnASingleChannelInLocale(string $localeCode): void
+    {
+        $defaultData = $this->defaultChannelFactory->create(localeCode: $localeCode);
 
         $this->sharedStorage->setClipboard($defaultData);
         $this->sharedStorage->set('channel', $defaultData['channel']);
@@ -106,10 +122,10 @@ final class ChannelContext implements Context
      * @Given the store operates on a channel identified by :channelCode code
      */
     public function theStoreOperatesOnAChannelNamed(
-        string $channelName = null,
-        string $currencyCode = null,
-        string $hostname = null,
-        string $channelCode = null,
+        ?string $channelName = null,
+        ?string $currencyCode = null,
+        ?string $hostname = null,
+        ?string $channelCode = null,
     ): void {
         $channelCode = $channelCode ?? StringInflector::nameToLowercaseCode($channelName);
         $channelName = $channelName ?? $channelCode;
@@ -123,7 +139,7 @@ final class ChannelContext implements Context
     /**
      * @Given the channel :channel is enabled
      */
-    public function theChannelIsEnabled(ChannelInterface $channel)
+    public function theChannelIsEnabled(ChannelInterface $channel): void
     {
         $this->changeChannelState($channel, true);
     }
@@ -132,7 +148,7 @@ final class ChannelContext implements Context
      * @Given the channel :channel is disabled
      * @Given the channel :channel has been disabled
      */
-    public function theChannelIsDisabled(ChannelInterface $channel)
+    public function theChannelIsDisabled(ChannelInterface $channel): void
     {
         $this->changeChannelState($channel, false);
     }
@@ -140,7 +156,7 @@ final class ChannelContext implements Context
     /**
      * @Given /^the (channel "[^"]+") has showing the lowest price of discounted products (enabled|disabled)$/
      */
-    public function theChannelHasShowingTheLowestPriceOfDiscountedProducts(ChannelInterface $channel, string $visible)
+    public function theChannelHasShowingTheLowestPriceOfDiscountedProducts(ChannelInterface $channel, string $visible): void
     {
         $channel->getChannelPriceHistoryConfig()->setLowestPriceForDiscountedProductsVisible($visible === 'enabled');
 
@@ -150,7 +166,7 @@ final class ChannelContext implements Context
     /**
      * @Given channel :channel has been deleted
      */
-    public function iChannelHasBeenDeleted(ChannelInterface $channel)
+    public function iChannelHasBeenDeleted(ChannelInterface $channel): void
     {
         $this->channelRepository->remove($channel);
     }
@@ -158,7 +174,7 @@ final class ChannelContext implements Context
     /**
      * @Given /^(its) default tax zone is (zone "([^"]+)")$/
      */
-    public function itsDefaultTaxRateIs(ChannelInterface $channel, ZoneInterface $defaultTaxZone)
+    public function itsDefaultTaxRateIs(ChannelInterface $channel, ZoneInterface $defaultTaxZone): void
     {
         $channel->setDefaultTaxZone($defaultTaxZone);
         $this->channelManager->flush();
@@ -168,7 +184,7 @@ final class ChannelContext implements Context
      * @Given /^(this channel) has contact email set as "([^"]+)"$/
      * @Given /^(this channel) has no contact email set$/
      */
-    public function thisChannelHasContactEmailSetAs(ChannelInterface $channel, $contactEmail = null)
+    public function thisChannelHasContactEmailSetAs(ChannelInterface $channel, ?string $contactEmail = null): void
     {
         $channel->setContactEmail($contactEmail);
         $this->channelManager->flush();
@@ -177,7 +193,7 @@ final class ChannelContext implements Context
     /**
      * @Given /^on (this channel) shipping step is skipped if only a single shipping method is available$/
      */
-    public function onThisChannelShippingStepIsSkippedIfOnlyASingleShippingMethodIsAvailable(ChannelInterface $channel)
+    public function onThisChannelShippingStepIsSkippedIfOnlyASingleShippingMethodIsAvailable(ChannelInterface $channel): void
     {
         $channel->setSkippingShippingStepAllowed(true);
 
@@ -189,7 +205,7 @@ final class ChannelContext implements Context
      */
     public function onThisChannelPaymentStepIsSkippedIfOnlyASinglePaymentMethodIsAvailable(
         ChannelInterface $channel,
-    ) {
+    ): void {
         $channel->setSkippingPaymentStepAllowed(true);
 
         $this->channelManager->flush();
@@ -198,9 +214,19 @@ final class ChannelContext implements Context
     /**
      * @Given /^on (this channel) account verification is not required$/
      */
-    public function onThisChannelAccountVerificationIsNotRequired(ChannelInterface $channel)
+    public function onThisChannelAccountVerificationIsNotRequired(ChannelInterface $channel): void
     {
         $channel->setAccountVerificationRequired(false);
+
+        $this->channelManager->flush();
+    }
+
+    /**
+     * @Given /^on (this channel) account verification is required$/
+     */
+    public function onThisChannelAccountVerificationIsRequired(ChannelInterface $channel): void
+    {
+        $channel->setAccountVerificationRequired(true);
 
         $this->channelManager->flush();
     }
@@ -321,9 +347,30 @@ final class ChannelContext implements Context
     }
 
     /**
-     * @param bool $state
+     * @Given the store also operates in :locale locale
      */
-    private function changeChannelState(ChannelInterface $channel, $state)
+    public function theStoreAlsoOperatesInLocale(LocaleInterface $locale): void
+    {
+        /** @var ChannelInterface $channel */
+        $channel = $this->sharedStorage->get('channel');
+        $channel->addLocale($locale);
+
+        $this->channelManager->flush();
+    }
+
+    /**
+     * @Given the store uses the :taxCalculationStrategy tax calculation strategy
+     */
+    public function theStoreUsesTheTaxCalculationStrategy(string $taxCalculationStrategy): void
+    {
+        /** @var ChannelInterface $channel */
+        $channel = $this->sharedStorage->get('channel');
+        $channel->setTaxCalculationStrategy(StringInflector::nameToLowercaseCode($taxCalculationStrategy));
+
+        $this->channelManager->flush();
+    }
+
+    private function changeChannelState(ChannelInterface $channel, bool $state): void
     {
         $channel->setEnabled($state);
         $this->channelManager->flush();

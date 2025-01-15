@@ -7,11 +7,13 @@ imports:
 
     - { resource: "@SyliusApiBundle/Resources/config/app/config.yaml" }
 
+    - { resource: "../parameters.yaml" }
+
 parameters:
     sylius_core.public_dir: '%kernel.project_dir%/public'
 
 sylius_api:
-    enabled: false
+    enabled: true
 
 sylius_shop:
     product_grid:

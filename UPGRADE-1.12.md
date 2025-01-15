@@ -1,15 +1,126 @@
-# UPGRADE FROM `v1.12.X` TO `v1.12.8`
+# UPGRADING FROM `v1.12.17` TO `v1.12.18`
+
+1. Due to concerns about brute forcing user's reset and verification tokens,
+   the upper limit of 40 has been changed to 255 and their default length has been changed from 16 to 64.
+   If you prefer shorter (or longer) tokens, you can change their length via the configuration:
+
+   ```yml
+    sylius_user:
+        resources:
+            _user_:
+                user:
+                    resetting:
+                        token:
+                            length: 128
+                    verification:
+                        token:
+                            length: 12
+   ```
+   where `_user_` can be `admin`, `shop`, `oauth`, or your own custom user type.
+
+1. The order token length has been parametrized and is now configurable, instead of being hardcoded to `10`.
+   When not specified its default value is `64`.
+   The new parameter can be set by configuration:
+
+   ```yml
+    sylius_core:
+        order_token_length: 128
+   ```
+
+# UPGRADING FROM `v1.12.16` TO `v1.12.17`
+
+1. Due to a bug that was causing wrong calculation of available stock during completing a payment [REF](https://github.com/Sylius/Sylius/issues/16160),
+   The constructor of `Sylius\Bundle\CoreBundle\EventListener\PaymentPreCompleteListener` has been modified as follows:
+
+   ```diff
+    public function __construct(
+    +   private OrderItemAvailabilityCheckerInterface|AvailabilityCheckerInterface $availabilityChecker,
+    -   private AvailabilityCheckerInterface $availabilityChecker,
+    )
+    ```
+
+   If you have overwritten the service or its argument, check the correct functioning.
+
+# UPGRADING FROM `v1.12.13` TO `v1.12.14`
+
+1. The `Accept-Language` header should now correctly resolve locale codes based on RFC 4647 using Symfony's request language negotiation,
+   meaning that values `en_US`, `en-US`, `en-us` etc. will all result in the `en_US` locale.
+
+# UPGRADE FROM `v1.12.11` TO `v1.12.12`
+
+1. The `Sylius\Component\User\Model\UserInterface` extends the `Symfony\Component\PasswordHasher\Hasher\PasswordHasherAwareInterface`
+   interface to fix the compatibility with Symfony 6.
+2. The constructor of `Sylius\Component\Product\Resolver\DefaultProductVariantResolver` has been modified, a new argument has been added :
+   
+   ```php
+    public function __construct(
+        private ?ProductVariantRepositoryInterface $productVariantRepository = null,
+    )
+    ```
+
+# UPGRADE FROM `v1.12.10` TO `v1.12.11`
+
+1. Due to a bug that was causing the removal of promotion configurations for promotions [REF](https://github.com/Sylius/Sylius/issues/15201),
+   The constructor of `Sylius\Bundle\CoreBundle\EventListener\ProductDeletionListener` has been modified as follows:
+
+   ```diff
+    public function __construct(
+        private RequestStack $requestStack,
+    +   private ProductInPromotionRuleCheckerInterface $productInPromotionRuleChecker,
+    -   ProductAwareRuleUpdaterInterface ...$ruleUpdaters,
+    )
+    ```
+
+   The method name has also changed from `removeProductFromPromotionRules` to `protectFromRemovingProductInUseByPromotionRule`.
+
+   Please refrain from using ProductAwareRuleUpdaterInterface, as it will be removed in the next major release.
+
+   * Due to the same bug, the constructor of `Sylius\Bundle\CoreBundle\EventListener\TaxonDeletionListener` has also changed:
+    
+      ```diff
+       public function __construct(
+           private SessionInterface|RequestStack $requestStackOrSession,
+           private ChannelRepositoryInterface $channelRepository,
+       +   private TaxonInPromotionRuleCheckerInterface $taxonInPromotionRuleChecker,
+           TaxonAwareRuleUpdaterInterface ...$ruleUpdaters,
+       )
+      ```
+
+1. The `Sylius\Bundle\AttributeBundle\Form\Type\AttributeType\Configuration\SelectAttributeChoicesCollectionType` only
+    constructor argument has been made optional and is `null` by default, subsequently the first argument of
+    `sylius.form.type.attribute_type.select.choices_collection` has been removed.
+
+1. The default checkout resolving route pattern has been changed from `/checkout/.+` to
+   `%sylius.security.shop_regex%/checkout/.+` to reduce the probability of conflicts with other routes.
+
+1. The `src/Sylius/Bundle/AdminBundle/Resources/views/Taxon/_treeWithButtons.html.twig` template has been updated to
+    implement new changing taxon's position logic. If you have overridden this template, you need to update it.
+    If you want to check what has changed, you might use [this PR](https://github.com/Sylius/Sylius/pull/15272) as a reference.
+
+# UPGRADE FROM `v1.12.9` TO `v1.12.10`
+
+1. The `Sylius\Component\Core\OrderProcessing\OrderPaymentProcessor` constructor has been changed:
+    ```diff
+    public function __construct(
+        private OrderPaymentProviderInterface $orderPaymentProvider,
+        private string $targetState = PaymentInterface::STATE_CART,
+    +   private ?OrderPaymentsRemoverInterface $orderPaymentsRemover = null,
+    +   private array $unprocessableOrderStates = [],
+    )
+    ```
+
+# UPGRADE FROM `v1.12.5` TO `v1.12.8`
 
 1. The priority of the `sylius.context.locale` tag on the `Sylius\Bundle\LocaleBundle\Context\RequestHeaderBasedLocaleContext` service has been changed from `256` to `32`.
     It means that this service has no longer the highest priority, and passing `Accept-Language` header on the UI won't override the locale set in the URL. If your app
     depends on this behavior, you need to change the priority of the `sylius.context.locale` tag on the `Sylius\Bundle\LocaleBundle\Context\RequestHeaderBasedLocaleContext` directly in your app.
 
-# UPGRADE FROM `v1.12.X` TO `v1.12.5`
+# UPGRADE FROM `v1.12.4` TO `v1.12.5`
 
 1. For routes `sylius_admin_order_shipment_ship` and `sylius_admin_order_resend_confirmation_email` the missing "/orders"
     prefix has been added. If you have been using these routes' paths directly, you need to update them.
 
-# UPGRADE FROM `v1.12.X` TO `v1.12.4`
+# UPGRADE FROM `v1.12.2` TO `v1.12.4`
 
 1. The default configuration of Symfony Messenger has changed,
    it is now separated for each transport and can be set via environmental variables:
@@ -22,7 +133,7 @@
         + SYLIUS_MESSENGER_TRANSPORT_CATALOG_PROMOTION_REMOVAL_FAILED_DSN=doctrine://default?queue_name=catalog_promotion_removal_failed
     ```
 
-# UPGRADE FROM `v1.12.X` TO `v1.12.2`
+# UPGRADE FROM `v1.12.0` TO `v1.12.2`
 
 1. All entities and their relationships have a default order by identifier if no order is specified. You can disable
    this behavior by setting the `sylius_core.order_by_identifier` parameter to `false`:
@@ -54,7 +165,7 @@ and should be used only this way.
 
 4. To allow administrator reset their password, add in `config/packages/security.yaml` file the following entry
    ```yaml
-           - { path: "%sylius.security.admin_regex%/forgotten-password", role: IS_AUTHENTICATED_ANONYMOUSLY }
+   - { path: "%sylius.security.admin_regex%/forgotten-password", role: IS_AUTHENTICATED_ANONYMOUSLY }
    ```
    above
    ```yaml

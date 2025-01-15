@@ -76,6 +76,8 @@ final class CheckoutCompleteContext implements Context
 
     /**
      * @Given I have confirmed order
+     * @Given the visitor confirm his order
+     * @Given the customer confirm his order
      * @When I confirm my order
      * @When I try to confirm my order
      */
@@ -147,7 +149,7 @@ final class CheckoutCompleteContext implements Context
     }
 
     /**
-     * @Then /^the ("[^"]+" product) should have unit price discounted by ("\$\d+")$/
+     * @Then /^the ("[^"]+" product) should have unit price discounted by ("[^"]+")$/
      */
     public function theShouldHaveUnitPriceDiscountedFor(ProductInterface $product, int $amount): void
     {
@@ -370,6 +372,20 @@ final class CheckoutCompleteContext implements Context
         }
 
         throw new UnexpectedPageException('It should not be possible to complete checkout complete step.');
+    }
+
+    /**
+     * @Then I should not be able to confirm order because the :shippingMethodName shipping method is not available
+     */
+    public function iShouldNotBeAbleToConfirmOrderBecauseTheShippingMethodIsNotAvailable(string $shippingMethodName): void
+    {
+        Assert::same(
+            $this->completePage->getValidationErrors(),
+            sprintf(
+                'The "%s" shipping method is not available. Please reselect your shipping method.',
+                $shippingMethodName,
+            ),
+        );
     }
 
     /**

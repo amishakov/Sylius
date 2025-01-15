@@ -23,6 +23,16 @@ And that's all, now you have a new endpoint with your custom logic.
 
     Read more about API Platform endpoint configuration `here <https://api-platform.com/docs/core/operations/>`_
 
+Good to Know
+~~~~~~~~~~~~
+
+.. tip::
+    API Platform is configured to prevent modifications to orders not in the ``cart`` state. There are only a few 
+    specific actions allowed. This is done by preventing orders not in the state ``cart`` from loading if the method 
+    is not ``GET``. So if you need to add an endpoint to an API that needs to edit orders that are not in the state 
+    ``cart``, you will need to whitelist this endpoint. This can be done by adding your API route to the 
+    ``sylius.api.doctrine_extension.order_shop_user_item.filter_cart.allowed_non_get_operations`` parameter. 
+
 How to remove an endpoint?
 --------------------------
 

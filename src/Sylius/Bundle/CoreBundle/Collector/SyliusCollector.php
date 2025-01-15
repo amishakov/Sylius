@@ -37,7 +37,7 @@ final class SyliusCollector extends DataCollector
             'default_locale_code' => $defaultLocaleCode,
             'locale_code' => null,
             'extensions' => [
-                'SyliusAdminApiBundle' => ['name' => 'API', 'enabled' => false],
+                'SyliusApiBundle' => ['name' => 'API', 'enabled' => false],
                 'SyliusAdminBundle' => ['name' => 'Admin', 'enabled' => false],
                 'SyliusShopBundle' => ['name' => 'Shop', 'enabled' => false],
             ],
@@ -60,39 +60,27 @@ final class SyliusCollector extends DataCollector
         return $this->data['extensions'];
     }
 
-    /**
-     * @return string
-     */
     public function getCurrencyCode(): ?string
     {
         return $this->data['currency_code'];
     }
 
-    /**
-     * @return string
-     */
     public function getLocaleCode(): ?string
     {
         return $this->data['locale_code'];
     }
 
-    /**
-     * @return string
-     */
     public function getDefaultCurrencyCode(): ?string
     {
         return $this->data['base_currency_code'];
     }
 
-    /**
-     * @return string
-     */
     public function getDefaultLocaleCode(): ?string
     {
         return $this->data['default_locale_code'];
     }
 
-    public function collect(Request $request, Response $response, \Throwable $exception = null): void
+    public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
         try {
             /** @var ChannelInterface $channel */

@@ -6,8 +6,8 @@ code & documentation hosted on the main ``Sylius/Sylius`` `repository`_).
 
 Sylius follows the `Semantic Versioning`_ strategy:
 
-* A new Sylius patch version (e.g. 1.0.1, 1.0.2, etc.) comes out usually *once a month*, depending on the number of bug fixes developed
-* A new Sylius minor version (e.g. 1.1, 1.2, etc.) is released depending on various factors (see below), usually *once a few months*
+* A new Sylius patch version (e.g. 1.13.1, 1.13.2, etc.) comes out usually *once a month*, depending on the number of bug fixes developed
+* A new Sylius minor version (e.g. 1.14, 2.1, etc.) is released depending on various factors (see below), usually *once a few months*
 
 New Sylius minor releases will drop unsupported PHP versions.
 
@@ -47,33 +47,33 @@ Maintenance
 Each minor Sylius version is maintained for a fixed period of time after its release.
 This maintenance is divided into:
 
-* *Bug fixes and security fixes*: During this period, being *eight months* long,
-  all issues can be fixed. The end of this period is referenced as being the
-  *end of maintenance* of a release.
+* *Bug fixes and security fixes*: During this period all issues can be fixed.
+  The end of this period is referenced as being the *end of maintenance* of a release.
 
-* *Security fixes only*: During this period, being *sixteen months* long,
-  only security related issues can be fixed. The end of this period is referenced
-  as being the *end of life* of a release.
+* *Security fixes only*: During this period, only security related issues can be fixed.
+  The end of this period is referenced as being the *end of life* of a release.
 
-Future release
---------------
+Planned releases
+----------------
 
-+---------+----------------------+------------------------+--------------------+
-| Version | Development starts   | Stabilization starts   | Release date       |
-+=========+======================+========================+====================+
-| 1.13    | Oct 31, 2022         | ???                    | ???                |
-+---------+----------------------+------------------------+--------------------+
++----------+--------------------+----------------------+---------------+----------------------------+---------------------+
+| Version  | Development starts | Stabilization starts | Release date  | Planned end of maintenance | Planned end of life |
++==========+====================+======================+===============+============================+=====================+
+| 2.1      | November, 2024     | Q1/Q2 2025           | Q2/Q3 2025    |                            |                     |
++----------+--------------------+----------------------+---------------+----------------------------+---------------------+
 
 Supported versions
 ------------------
 
-+---------+--------------------+--------------------+--------------------+-----------------------+
-| Version | Release date       | End of maintenance | End of life        | Status                |
-+=========+====================+====================+====================+=======================+
-| 1.12    | Oct 31, 2022       | Sep 1, 2023        | Jun 1, 2024        | Fully supported       |
-+---------+--------------------+--------------------+--------------------+-----------------------+
-| 1.11    | Feb 14, 2022       | Jan 31, 2023       | Oct 31, 2023       | Security support only |
-+---------+--------------------+--------------------+--------------------+-----------------------+
++----------+--------------------+--------------------+--------------------+---------------------+
+| Version  | Release date       | End of maintenance | End of life        | Status              |
++==========+====================+====================+====================+=====================+
+| 1.13     | Apr 23, 2024       | Jan 23, 2025       | Apr 23, 2025       | Fully supported     |
++----------+--------------------+--------------------+--------------------+---------------------+
+| 1.14 LTS | Nov 12, 2024       | December 2025      | December 2026      | Fully supported     |
++----------+--------------------+--------------------+--------------------+---------------------+
+| 2.0      | Nov 12, 2024       | August 2025        | February 2026      | Fully supported     |
++----------+--------------------+--------------------+--------------------+---------------------+
 
 Unsupported versions
 --------------------
@@ -81,6 +81,10 @@ Unsupported versions
 +---------+--------------------+--------------------+--------------------+
 | Version | Release date       | End of maintenance | End of life        |
 +=========+====================+====================+====================+
+| 1.12    | Oct 31, 2022       | Jun 30, 2024       | Dec 31, 2024       |
++---------+--------------------+--------------------+--------------------+
+| 1.11    | Feb 14, 2022       | Jan 31, 2023       | Oct 31, 2023       |
++---------+--------------------+--------------------+--------------------+
 | 1.10    | Jun 29, 2021       | May 14, 2022       | Jan 14, 2023       |
 +---------+--------------------+--------------------+--------------------+
 | 1.9     | Mar 1, 2021        | Nov 1, 2021        | Jul 1, 2022        |

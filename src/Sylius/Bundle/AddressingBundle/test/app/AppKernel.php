@@ -20,7 +20,6 @@ class AppKernel extends Kernel
     {
         return [
             new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),
-            new winzou\Bundle\StateMachineBundle\winzouStateMachineBundle(),
             new FOS\RestBundle\FOSRestBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
             new BabDev\PagerfantaBundle\BabDevPagerfantaBundle(),
@@ -28,6 +27,8 @@ class AppKernel extends Kernel
             new Sylius\Bundle\AddressingBundle\SyliusAddressingBundle(),
             new Sylius\Bundle\ResourceBundle\SyliusResourceBundle(),
             new Symfony\Bundle\TwigBundle\TwigBundle(),
+            new Nelmio\Alice\Bridge\Symfony\NelmioAliceBundle(),
+            new Fidry\AliceDataFixtures\Bridge\Symfony\FidryAliceDataFixturesBundle(),
         ];
     }
 

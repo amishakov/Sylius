@@ -130,6 +130,15 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         AutocompleteHelper::chooseValue($this->getSession(), $mainTaxonElement, $taxon->getName());
     }
 
+    public function isTaxonVisibleInMainTaxonList(string $taxonName): bool
+    {
+        $this->openTaxonBookmarks();
+
+        $mainTaxonElement = $this->getElement('main_taxon')->getParent();
+
+        return AutocompleteHelper::isValueVisible($this->getSession(), $mainTaxonElement, $taxonName);
+    }
+
     public function selectProductTaxon(TaxonInterface $taxon): void
     {
         $productTaxonsCodes = [];
@@ -168,8 +177,9 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
     public function hasMainTaxonWithName(string $taxonName): bool
     {
         $this->openTaxonBookmarks();
+        $mainTaxonElement = $this->getElement('main_taxon')->getParent();
 
-        return $taxonName === $this->getDocument()->find('css', '.search > .text')->getText();
+        return $taxonName === $mainTaxonElement->find('css', '.search > .text')->getText();
     }
 
     public function isTaxonChosen(string $taxonName): bool
@@ -220,7 +230,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         return in_array($statusCode, [200, 304], true);
     }
 
-    public function attachImage(string $path, string $type = null): void
+    public function attachImage(string $path, ?string $type = null): void
     {
         $this->clickTabIfItsNotActive('media');
 
@@ -413,6 +423,11 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         return null !== $this->getDocument()->find('css', '.tab > h3:contains("Inventory")');
     }
 
+    public function getShowProductInSingleChannelUrl(): string
+    {
+        return $this->getElement('show_product_single_button')->getAttribute('href');
+    }
+
     public function isShowInShopButtonDisabled(): bool
     {
         return $this->getElement('show_product_single_button')->hasClass('disabled');
@@ -482,12 +497,14 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
             'price' => '#sylius_product_variant_channelPricings input[id*="%channelCode%"]',
             'pricing_configuration' => '#sylius_calculator_container',
             'main_taxon' => '#sylius_product_mainTaxon',
+            'meta_description' => '#sylius_product_translations_%locale%_metaDescription',
+            'meta_keywords' => '#sylius_product_translations_%locale%_metaKeywords',
             'non_translatable_attribute' => '#attributesContainer [data-test-product-attribute-value-in-locale="%attributeName% "] input',
             'product_taxon' => '#sylius-product-taxonomy-tree .item .header:contains("%taxonName%") input',
             'product_taxons' => '#sylius_product_productTaxons',
             'shipping_required' => '#sylius_product_variant_shippingRequired',
             'show_product_dropdown' => '.scrolling.menu',
-            'show_product_single_button' => 'a:contains("Show product in shop page")',
+            'show_product_single_button' => '[data-test-show-product-in-shop-page]',
             'slug' => '#sylius_product_translations_%locale%_slug',
             'tab' => '.menu [data-tab="%name%"]',
             'taxonomy' => 'a[data-tab="taxonomy"]',

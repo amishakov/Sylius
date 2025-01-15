@@ -141,12 +141,10 @@ Deployment
 .. toctree::
     :hidden:
 
-    deployment/symfonycloud
-    deployment/platform-sh
-    deployment/cloudways
+    deployment/introduction-to-sylius-cloud
+    deployment/sylius-cloud-management-basics
+    deployment/advanced-sylius-cloud-configuration
     deployment/cron-jobs
-    deployment/artifakt
-    deployment/docker
 
 .. include:: /cookbook/deployment/map.rst.inc
 
@@ -196,4 +194,3 @@ API
     api/how_force_login_already_registered_user_during_checkout
 
 .. include:: /cookbook/api/map.rst.inc
-

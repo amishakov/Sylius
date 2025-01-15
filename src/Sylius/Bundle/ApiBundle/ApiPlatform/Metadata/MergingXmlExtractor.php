@@ -24,8 +24,6 @@ use Sylius\Bundle\ApiBundle\ApiPlatform\Metadata\Merger\MetadataMergerInterface;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
- * @experimental
- *
  * @see XmlExtractor
  */
 final class MergingXmlExtractor extends AbstractResourceExtractor implements PropertyExtractorInterface
@@ -37,7 +35,7 @@ final class MergingXmlExtractor extends AbstractResourceExtractor implements Pro
      */
     public function __construct(
         array $paths,
-        ContainerInterface $container = null,
+        ?ContainerInterface $container = null,
         private ?MetadataMergerInterface $merger = null,
     ) {
         parent::__construct($paths, $container);
@@ -143,9 +141,11 @@ final class MergingXmlExtractor extends AbstractResourceExtractor implements Pro
     {
         $graphql = 'operation' === $operationType;
         if (!$graphql && $legacyOperations = $this->extractAttributes($resource, $operationType)) {
-            @trigger_error(
-                sprintf('Configuring "%1$s" tags without using a parent "%1$ss" tag is deprecated since API Platform 2.1 and will not be possible anymore in API Platform 3', $operationType),
-                \E_USER_DEPRECATED,
+            trigger_deprecation(
+                'api-platform/core',
+                '2.1',
+                'Configuring "%1$s" tags without using a parent "%1$ss" tag is deprecated since API Platform 2.1 and will not be possible anymore in API Platform 3',
+                $operationType,
             );
 
             return $legacyOperations;

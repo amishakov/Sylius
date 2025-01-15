@@ -29,13 +29,18 @@ final class HasEnabledEntityValidator extends ConstraintValidator
         private ?PropertyAccessorInterface $accessor = null,
     ) {
         if (null === $this->accessor) {
-            trigger_deprecation('sylius/core-bundle', '1.13', sprintf('Not passing a PropertyAccessorInterface as the second constructor argument for %s is deprecated as of Sylius 1.13 and will be required in 2.0.', self::class));
+            trigger_deprecation(
+                'sylius/core-bundle',
+                '1.13',
+                'Not passing a PropertyAccessorInterface as the second constructor argument for %s is deprecated and will be required in Sylius 2.0.',
+                self::class,
+            );
 
             $this->accessor = PropertyAccess::createPropertyAccessor();
         }
     }
 
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         /** @var HasEnabledEntity $constraint */
         Assert::isInstanceOf($constraint, HasEnabledEntity::class);

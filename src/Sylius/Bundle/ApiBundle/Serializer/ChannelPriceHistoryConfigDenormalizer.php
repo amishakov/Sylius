@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ApiBundle\Serializer;
 
-use ApiPlatform\Core\Api\IriConverterInterface;
+use ApiPlatform\Api\IriConverterInterface;
 use Sylius\Bundle\ApiBundle\Validator\ResourceInputDataPropertiesValidatorInterface;
 use Sylius\Component\Core\Model\ChannelPriceHistoryConfigInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
@@ -23,7 +23,6 @@ use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
 use Webmozart\Assert\Assert;
 
-/** @experimental */
 final class ChannelPriceHistoryConfigDenormalizer implements ContextAwareDenormalizerInterface, DenormalizerAwareInterface
 {
     use DenormalizerAwareTrait;
@@ -38,7 +37,7 @@ final class ChannelPriceHistoryConfigDenormalizer implements ContextAwareDenorma
     ) {
     }
 
-    public function supportsDenormalization(mixed $data, string $type, string $format = null, array $context = []): bool
+    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
         return
             !isset($context[self::ALREADY_CALLED]) &&
@@ -47,7 +46,7 @@ final class ChannelPriceHistoryConfigDenormalizer implements ContextAwareDenorma
         ;
     }
 
-    public function denormalize(mixed $data, string $type, string $format = null, array $context = [])
+    public function denormalize(mixed $data, string $type, ?string $format = null, array $context = [])
     {
         $context[self::ALREADY_CALLED] = true;
         $data = (array) $data;
@@ -60,7 +59,7 @@ final class ChannelPriceHistoryConfigDenormalizer implements ContextAwareDenorma
 
         foreach ($data['taxonsExcludedFromShowingLowestPrice'] ?? [] as $excludedTaxonIri) {
             /** @var TaxonInterface $taxon */
-            $taxon = $this->iriConverter->getItemFromIri($excludedTaxonIri);
+            $taxon = $this->iriConverter->getResourceFromIri($excludedTaxonIri);
 
             $channelPriceHistoryConfig->addTaxonExcludedFromShowingLowestPrice($taxon);
         }

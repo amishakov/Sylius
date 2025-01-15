@@ -24,8 +24,6 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * Logic of this class is based on ApiPlatform\Core\Bridge\Symfony\Routing\IriConverter, This class provide `id` from path but it doesn't fetch object from database
- *
- * @experimental
  */
 final class IriToIdentifierConverter implements IriToIdentifierConverterInterface
 {
@@ -54,10 +52,6 @@ final class IriToIdentifierConverter implements IriToIdentifierConverterInterfac
             throw new InvalidArgumentException(sprintf('No resource associated to "%s".', $iri));
         }
 
-        /**
-         * @psalm-suppress InternalClass
-         * @psalm-suppress InternalMethod
-         */
         $attributes = AttributesExtractor::extractAttributes($parameters);
 
         try {

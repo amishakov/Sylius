@@ -13,10 +13,11 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Context\Api\Admin;
 
-use ApiPlatform\Core\Api\IriConverterInterface;
+use ApiPlatform\Api\IriConverterInterface;
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Client\ApiClientInterface;
 use Sylius\Behat\Client\ResponseCheckerInterface;
+use Sylius\Behat\Context\Api\Admin\Helper\ValidationTrait;
 use Sylius\Behat\Context\Api\Resources;
 use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Addressing\Model\CountryInterface;
@@ -26,6 +27,8 @@ use Webmozart\Assert\Assert;
 
 final class ManagingCountriesContext implements Context
 {
+    use ValidationTrait;
+
     public function __construct(
         private ApiClientInterface $client,
         private ResponseCheckerInterface $responseChecker,
@@ -47,11 +50,20 @@ final class ManagingCountriesContext implements Context
      */
     public function iChoose(string $countryName): void
     {
-        $this->client->addRequestData('code', $this->getCountryCodeByName($countryName));
+        $this->iSpecifyTheCountryCodeAs($this->getCountryCodeByName($countryName));
+    }
+
+    /**
+     * @When I specify the country code as :code
+     */
+    public function iSpecifyTheCountryCodeAs(string $code): void
+    {
+        $this->client->addRequestData('code', $code);
     }
 
     /**
      * @When I add it
+     * @When I try to add it
      */
     public function iAddIt(): void
     {
@@ -107,6 +119,14 @@ final class ManagingCountriesContext implements Context
     }
 
     /**
+     * @When I provide a too long province code
+     */
+    public function iProvideATooLongProvinceCode(): void
+    {
+        $this->iSpecifyTheProvinceCodeAs(sprintf('XX-%s', str_repeat('A', $this->getMaxCodeLength())));
+    }
+
+    /**
      * @When I add the :provinceName province with :provinceCode code
      */
     public function iAddTheProvinceWithCode(string $provinceName, string $provinceCode): void
@@ -144,10 +164,11 @@ final class ManagingCountriesContext implements Context
     }
 
     /**
+     * @When I do not specify the country code
      * @When I do not specify the province code
      * @When I do not name the province
      */
-    public function iDoNotSpecifyTheProvince(): void
+    public function iDoNotSpecifyTheField(): void
     {
         // Intentionally left blank
     }
@@ -238,15 +259,17 @@ final class ManagingCountriesContext implements Context
     /**
      * @Then /^(this country) should be (enabled|disabled)$/
      */
-    public function thisCountryShouldBeDisabled(CountryInterface $country, string $enabled): void
+    public function thisCountryShouldBe(CountryInterface $country, string $state): void
     {
+        $isEnabled = 'enabled' === $state;
+
         Assert::true(
             $this->responseChecker->hasValue(
                 $this->client->show(Resources::COUNTRIES, $country->getCode()),
                 'enabled',
-                $enabled === 'enabled',
+                $isEnabled,
             ),
-            'Country is not disabled',
+            sprintf('Country is not %s', $isEnabled ? 'enabled' : 'disabled'),
         );
     }
 
@@ -292,13 +315,24 @@ final class ManagingCountriesContext implements Context
     }
 
     /**
-     * @Then I should be notified that province code must be unique
+     * @Then /^I should be notified that province (code|name) must be unique$/
      */
-    public function iShouldBeNotifiedThatProvinceCodeMustBeUnique(): void
+    public function iShouldBeNotifiedThatProvinceCodeMustBeUnique(string $field): void
     {
-        Assert::same(
+        Assert::regex(
             $this->responseChecker->getError($this->client->getLastResponse()),
-            'provinces[1].code: Province code must be unique.',
+            sprintf('/provinces\[[\d+]\]\.%1$s: Province %1$s must be unique\./', $field),
+        );
+    }
+
+    /**
+     * @Then I should be notified that all province codes and names within this country need to be unique
+     */
+    public function iShouldBeNotifiedThatAllProvinceCodesAndNamesWithinThisCountryNeedToBeUnique(): void
+    {
+        Assert::contains(
+            $this->responseChecker->getError($this->client->getLastResponse()),
+            'provinces: All provinces within this country need to have unique codes and names.',
         );
     }
 
@@ -314,6 +348,17 @@ final class ManagingCountriesContext implements Context
     }
 
     /**
+     * @Then /^I should be notified that the country code is (required|invalid)$/
+     */
+    public function iShouldBeNotifiedThatTheCountryCodeIsRequired(string $constraint): void
+    {
+        Assert::contains(
+            $this->responseChecker->getError($this->client->getLastResponse()),
+            $constraint === 'required' ? 'Please enter country ISO code.' : 'Country ISO code is invalid.',
+        );
+    }
+
+    /**
      * @Then I should be notified that name of the province is required
      */
     public function iShouldBeNotifiedThatNameOfTheProvinceIsRequired(): void
@@ -321,6 +366,17 @@ final class ManagingCountriesContext implements Context
         Assert::contains(
             $this->responseChecker->getError($this->client->getLastResponse()),
             'Please enter province name.',
+        );
+    }
+
+    /**
+     * @Then I should be informed that the provided province code is too long
+     */
+    public function iShouldBeInformedThatTheProvinceCodeIsTooLong(): void
+    {
+        Assert::contains(
+            $this->responseChecker->getError($this->client->getLastResponse()),
+            'The code must not be longer than',
         );
     }
 
@@ -347,13 +403,14 @@ final class ManagingCountriesContext implements Context
         return $countryList[$countryName];
     }
 
+    /** @return iterable<ProvinceInterface> */
     private function getProvincesOfCountry(CountryInterface $country): iterable
     {
         $response = $this->client->show(Resources::COUNTRIES, $country->getCode());
         $countryFromResponse = $this->responseChecker->getResponseContent($response);
 
         foreach ($countryFromResponse['provinces'] as $provinceFromResponse) {
-            yield $this->iriConverter->getItemFromIri($provinceFromResponse);
+            yield $this->iriConverter->getResourceFromIri($provinceFromResponse);
         }
     }
 }

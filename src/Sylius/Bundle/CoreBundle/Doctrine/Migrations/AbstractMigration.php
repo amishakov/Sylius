@@ -16,14 +16,11 @@ namespace Sylius\Bundle\CoreBundle\Doctrine\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration as BaseAbstractMigration;
 
-abstract class AbstractMigration extends BaseAbstractMigration
+abstract class AbstractMigration extends BaseAbstractMigration implements MigrationSkipInterface
 {
     public function preUp(Schema $schema): void
     {
-        if (!$this->isMySql()) {
-            $this->markAsExecuted($this->getVersion());
-            $this->skipIf(true, 'This migration can only be executed on \'MySQL\'.');
-        }
+        $this->skipIf(!$this->isMySql(), 'This migration can only be executed on \'MySQL\'.');
     }
 
     public function preDown(Schema $schema): void
@@ -35,12 +32,10 @@ abstract class AbstractMigration extends BaseAbstractMigration
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        /** @psalm-suppress DeprecatedClass */
         if (class_exists(\Doctrine\DBAL\Platforms\MariaDb1027Platform::class) && is_a($platform, \Doctrine\DBAL\Platforms\MariaDb1027Platform::class)) {
             return true;
         }
 
-        /** @psalm-suppress DeprecatedClass */
         if (class_exists(\Doctrine\DBAL\Platforms\MariaDBPlatform::class) && is_a($platform, \Doctrine\DBAL\Platforms\MariaDBPlatform::class)) {
             return true;
         }
@@ -52,20 +47,12 @@ abstract class AbstractMigration extends BaseAbstractMigration
     {
         $platform = $this->connection->getDatabasePlatform();
 
-        /**
-         * @phpstan-ignore-next-line
-         *
-         * @psalm-suppress InvalidClass
-         */
+        /** @phpstan-ignore-next-line */
         if ($this->classExistsCaseSensitive(\Doctrine\DBAL\Platforms\MySQLPlatform::class) && is_a($platform, \Doctrine\DBAL\Platforms\MySQLPlatform::class, true)) {
             return true;
         }
 
-        /**
-         * @phpstan-ignore-next-line
-         *
-         * @psalm-suppress InvalidClass
-         */
+        /** @phpstan-ignore-next-line */
         if ($this->classExistsCaseSensitive(\Doctrine\DBAL\Platforms\MySqlPlatform::class) && is_a($platform, \Doctrine\DBAL\Platforms\MySqlPlatform::class, true)) {
             return true;
         }
@@ -73,11 +60,7 @@ abstract class AbstractMigration extends BaseAbstractMigration
         return false;
     }
 
-    private function getVersion(): string
-    {
-        return (new \ReflectionClass($this))->getName();
-    }
-
+    /** @deprecated */
     protected function markAsExecuted(string $version): void
     {
         $this->connection->executeQuery(

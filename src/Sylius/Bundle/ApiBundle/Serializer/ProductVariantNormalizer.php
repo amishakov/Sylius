@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ApiBundle\Serializer;
 
-use ApiPlatform\Core\Api\IriConverterInterface;
+use ApiPlatform\Api\IriConverterInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Sylius\Bundle\ApiBundle\SectionResolver\AdminApiSection;
 use Sylius\Bundle\CoreBundle\SectionResolver\SectionProviderInterface;
@@ -28,7 +28,6 @@ use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Webmozart\Assert\Assert;
 
-/** @experimental */
 final class ProductVariantNormalizer implements ContextAwareNormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
@@ -62,19 +61,29 @@ final class ProductVariantNormalizer implements ContextAwareNormalizerInterface,
         try {
             $data['price'] = $this->priceCalculator->calculate($object, ['channel' => $channel]);
             $data['originalPrice'] = $this->priceCalculator->calculateOriginal($object, ['channel' => $channel]);
-            $data['lowestPriceBeforeDiscount'] = $this->priceCalculator->calculateLowestPriceBeforeDiscount(
-                $object,
-                ['channel' => $channel],
-            );
+
+            if (\method_exists($this->priceCalculator, 'calculateLowestPriceBeforeDiscount')) {
+                $data['lowestPriceBeforeDiscount'] = $this->priceCalculator->calculateLowestPriceBeforeDiscount(
+                    $object,
+                    ['channel' => $channel],
+                );
+            } else {
+                trigger_deprecation(
+                    'sylius/sylius',
+                    '1.13',
+                    'Not having `calculateLowestPriceBeforeDiscount` method on %s is deprecated since Sylius 1.13 and will be required in Sylius 2.0.',
+                    $this->priceCalculator::class,
+                );
+            }
         } catch (MissingChannelConfigurationException) {
-            unset($data['price'], $data['originalPrice']);
+            unset($data['price'], $data['originalPrice'], $data['lowestPriceBeforeDiscount']);
         }
 
         /** @var ArrayCollection $appliedPromotions */
         $appliedPromotions = $object->getAppliedPromotionsForChannel($channel);
         if (!$appliedPromotions->isEmpty()) {
             $data['appliedPromotions'] = array_map(
-                fn (CatalogPromotionInterface $catalogPromotion) => $this->iriConverter->getIriFromItem($catalogPromotion),
+                fn (CatalogPromotionInterface $catalogPromotion) => $this->iriConverter->getIriFromResource($catalogPromotion),
                 $appliedPromotions->toArray(),
             );
         }

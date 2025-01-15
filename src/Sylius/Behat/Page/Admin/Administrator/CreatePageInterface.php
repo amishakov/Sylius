@@ -17,11 +17,19 @@ use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
 
 interface CreatePageInterface extends BaseCreatePageInterface
 {
+    public function isAvatarAttached(): bool;
+
+    public function attachAvatar(string $path): void;
+
     public function enable(): void;
 
     public function specifyUsername(string $username): void;
 
     public function specifyEmail(string $email): void;
+
+    public function specifyFirstName(string $firstName): void;
+
+    public function specifyLastName(string $lastName): void;
 
     public function specifyPassword(string $password): void;
 

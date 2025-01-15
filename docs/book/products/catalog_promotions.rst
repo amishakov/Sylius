@@ -241,7 +241,7 @@ We can also make it programmatically:
 
     /** @var MessageBusInterface $eventBus */
     $eventBus = $this->container->get('sylius.event_bus');
-    $this->eventBus->dispatch(new CatalogPromotionCreated($catalogPromotion->getCode()));
+    $eventBus->dispatch(new CatalogPromotionCreated($catalogPromotion->getCode()));
 
 And now you should be able to see created Catalog Promotion. You can check if it exists like in the last example (with GET endpoint).
 If you look into ``product-variant`` endpoint in shop you should see now that chosen variants have lowered price and added field ``appliedPromotions``:
@@ -349,7 +349,7 @@ one is edited, then the ``CatalogPromotionUpdated`` event is dispatched to event
 This event is handled by `CatalogPromotionUpdateListener <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Bundle/CoreBundle/Listener/CatalogPromotionUpdateListener.php>`_ which resolves the appropriate ``CatalogPromotion``.
 With the needed data and configuration from ``CatalogPromotion`` we can now process the Product Catalog.
 
-Any changes in Catalog Promotion cause recalculations of entire Product Catalog (`BatchedApplyCatalogPromotionsOnVariantsCommandDispatcher <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Bundle/CoreBundle/CommandDispatcher/BatchedApplyCatalogPromotionsOnVariantsCommandDispatcher.php>`_ is called, which dispatch events `ApplyCatalogPromotionsOnVariants <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Bundle/CoreBundle/Command/ApplyCatalogPromotionsOnVariants.php>`_)
+Any changes in Catalog Promotion cause recalculations of entire Product Catalog (`BatchedApplyCatalogPromotionsOnVariantsCommandDispatcher <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Bundle/CoreBundle/CatalogPromotion/CommandDispatcher/BatchedApplyCatalogPromotionsOnVariantsCommandDispatcher.php>`_ is called, which dispatch events `ApplyCatalogPromotionsOnVariants <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Bundle/CoreBundle/CatalogPromotion/Command/ApplyCatalogPromotionsOnVariants.php>`_)
 
 .. note::
 

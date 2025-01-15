@@ -23,7 +23,6 @@ use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Webmozart\Assert\Assert;
 
-/** @experimental */
 final class ProductAttributeValueNormalizer implements ContextAwareNormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
@@ -49,7 +48,7 @@ final class ProductAttributeValueNormalizer implements ContextAwareNormalizerInt
 
         switch ($object->getType()) {
             case SelectAttributeType::TYPE:
-                $data['value'] = $this->normalizeSelectValue($object, $context);
+                $data['value'] = $this->normalizeSelectValue($object);
 
                 break;
             case DateAttributeType::TYPE:
@@ -76,19 +75,26 @@ final class ProductAttributeValueNormalizer implements ContextAwareNormalizerInt
         return $data instanceof ProductAttributeValueInterface;
     }
 
-    private function normalizeSelectValue(ProductAttributeValueInterface $object, array $context): array
+    private function normalizeSelectValue(ProductAttributeValueInterface $object): array
     {
+        $value = $object->getValue();
+        if (!is_array($value)) {
+            return [];
+        }
+
         $attribute = $object->getAttribute();
         $configuration = $attribute->getConfiguration();
+        $defaultLocaleCode = $this->localeProvider->getDefaultLocaleCode();
 
         $values = [];
 
         foreach ($configuration['choices'] ?? [] as $uuid => $choice) {
-            if (in_array($uuid, $object->getValue())) {
+            if (in_array($uuid, $value)) {
                 $values[] = $choice[$object->getLocaleCode()]
-                    ?? $choice[$this->localeProvider->getDefaultLocaleCode()]
+                    ?? $choice[$defaultLocaleCode]
                     ?? $choice[$this->defaultLocaleCode]
-                    ?? reset($choice);
+                    ?? reset($choice)
+                ;
             }
         }
 

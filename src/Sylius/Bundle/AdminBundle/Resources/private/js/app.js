@@ -54,8 +54,9 @@ $(document).ready(() => {
   });
 
   $('.sylius-update-product-variants').moveProductVariant($('.sylius-product-variant-position'));
-  $('.sylius-taxon-move-up').taxonMoveUp();
-  $('.sylius-taxon-move-down').taxonMoveDown();
+
+  $('.sylius-taxon-move-up').taxonMove();
+  $('.sylius-taxon-move-down').taxonMove();
 
   $('#sylius_shipping_method_calculator').handlePrototypes({
     prototypePrefix: 'sylius_shipping_method_calculator_calculators',
@@ -121,14 +122,31 @@ $(document).ready(() => {
 
   $(document).previewUploadedImage('#add-avatar');
 
-  $('body').on('DOMNodeInserted', '[data-form-collection="item"]', (event) => {
-    if ($(event.target).find('.ui.accordion').length > 0) {
-      $(event.target).find('.ui.accordion').accordion();
-    }
-    if ($(event.target).find('.ui.tabular.menu').length > 0) {
-      $(event.target).find('.ui.tabular.menu .item').tab();
-    }
+  const newNodeObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.addedNodes.length > 0) {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const formCollectionItem = node.closest('[data-form-collection="item"]');
+            if (formCollectionItem) {
+              if ($(formCollectionItem).find('.ui.accordion').length > 0) {
+                $(formCollectionItem).find('.ui.accordion').accordion();
+              }
+              if ($(formCollectionItem).find('.ui.tabular.menu').length > 0) {
+                $(formCollectionItem).find('.ui.tabular.menu .item').tab();
+              }
+            }
+          }
+        });
+      }
+    });
   });
+  const observerConfig = {
+    childList: true,
+    subtree: true,
+  };
+  const targetNode = document.querySelector('body');
+  newNodeObserver.observe(targetNode, observerConfig);
 
   const taxonomyTree = new SyliusTaxonomyTree();
 

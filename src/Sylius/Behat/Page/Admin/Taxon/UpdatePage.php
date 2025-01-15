@@ -19,6 +19,7 @@ use Sylius\Behat\Behaviour\ChecksCodeImmutability;
 use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
 use Sylius\Behat\Service\AutocompleteHelper;
 use Sylius\Behat\Service\DriverHelper;
+use Sylius\Behat\Service\JQueryHelper;
 use Sylius\Behat\Service\SlugGenerationHelper;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Webmozart\Assert\Assert;
@@ -32,6 +33,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     public function chooseParent(TaxonInterface $taxon): void
     {
         AutocompleteHelper::chooseValue($this->getSession(), $this->getElement('parent')->getParent(), $taxon->getName());
+        JQueryHelper::waitForAsynchronousActionsToFinish($this->getSession());
     }
 
     public function describeItAs(string $description, string $languageCode): void
@@ -57,7 +59,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
         $this->getDocument()->fillField(sprintf('sylius_taxon_translations_%s_slug', $languageCode), $slug);
     }
 
-    public function attachImage(string $path, string $type = null): void
+    public function attachImage(string $path, ?string $type = null): void
     {
         $filesPath = $this->getParameter('files_path');
 

@@ -1,5 +1,234 @@
 # CHANGELOG FOR `1.12.X`
 
+## v1.12.19 (2024-07-17)
+
+#### Details
+
+- [#16544](https://github.com/Sylius/Sylius/issues/16544) [Docs] Update Taxon-Menu Page To Reflect Current Fixtures Configuration ([@Rafikooo](https://github.com/Rafikooo))
+- [#16592](https://github.com/Sylius/Sylius/issues/16592) [API] Disable shop GET adjustment endpoint ([@mpysiak](https://github.com/mpysiak), [@GSadee](https://github.com/GSadee))
+
+## v1.12.18 (2024-07-02)
+
+#### Details
+
+- [#16393](https://github.com/Sylius/Sylius/issues/16393) [User] Update the default tokens' length and the upper limit ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#16392](https://github.com/Sylius/Sylius/issues/16392) [Core] Add order token length to configuration ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#16410](https://github.com/Sylius/Sylius/issues/16410) [CS][DX] Refactor
+- [#16431](https://github.com/Sylius/Sylius/issues/16431) [CI] Change the version of Chrome ([@GSadee](https://github.com/GSadee))
+- [#16432](https://github.com/Sylius/Sylius/issues/16432) [CI] Change the version of Chrome from hardcoded one to stable ([@GSadee](https://github.com/GSadee))
+- [#16439](https://github.com/Sylius/Sylius/issues/16439) Correct wrong command in the platform's cron example docs ([@TheMilek](https://github.com/TheMilek))
+- [#16436](https://github.com/Sylius/Sylius/issues/16436) Sylius Plus modular installation and upgrading ([@CoderMaggie](https://github.com/CoderMaggie))
+- [#16500](https://github.com/Sylius/Sylius/issues/16500) [Documentation] Update Sylius 1.12 version on the release cycle page + update PR template ([@GSadee](https://github.com/GSadee))
+- [#16477](https://github.com/Sylius/Sylius/issues/16477) Fix ProductTaxons' positioning logic ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#16380](https://github.com/Sylius/Sylius/issues/16380) Fix products grid for mobile ([@Yanick-K](https://github.com/Yanick-K))
+
+## v1.12.17 (2024-06-07)
+
+#### Details
+
+- [#16290](https://github.com/Sylius/Sylius/issues/16290) Update bunnyshell.yaml, use network type volumes for mysql-data ([@mihaichitic](https://github.com/mihaichitic))
+- [#16293](https://github.com/Sylius/Sylius/issues/16293) [Core] Add Sylius Plus info Command ([@mpysiak](https://github.com/mpysiak))
+- [#16297](https://github.com/Sylius/Sylius/issues/16297) [Core] Change Show Plus Info command namespace ([@mpysiak](https://github.com/mpysiak))
+- [#16279](https://github.com/Sylius/Sylius/issues/16279) [Docs] Sylius Cloud by Platform.sh ([@senghe](https://github.com/senghe), [@CoderMaggie](https://github.com/CoderMaggie))
+- [#16323](https://github.com/Sylius/Sylius/issues/16323) Sylius Community Edition naming in docs ([@CoderMaggie](https://github.com/CoderMaggie))
+- [#16324](https://github.com/Sylius/Sylius/issues/16324) Mark `tracked` and `shippingRequired` as not required fields ([@loevgaard](https://github.com/loevgaard))
+- [#16329](https://github.com/Sylius/Sylius/issues/16329) [PHPStan] `Negated Boolean Expression Is Always True` Issue Fix ([@Rafikooo](https://github.com/Rafikooo))
+- [#16307](https://github.com/Sylius/Sylius/issues/16307) Fix wrong calculation of available stock during completing a payment ([@GSadee](https://github.com/GSadee))
+- [#16335](https://github.com/Sylius/Sylius/issues/16335) [Inventory] Adjust OrderInventoryOperator spec for exceptions changes ([@GSadee](https://github.com/GSadee))
+- [#16344](https://github.com/Sylius/Sylius/issues/16344) [Inventory] Extract service for checking reserved stock availability for given order item ([@GSadee](https://github.com/GSadee))
+- [#16342](https://github.com/Sylius/Sylius/issues/16342) Resolve createdByGuest on order fixtures ([@TheMilek](https://github.com/TheMilek))
+- [#16321](https://github.com/Sylius/Sylius/issues/16321) Improve Order get endpoints ([@TheMilek](https://github.com/TheMilek))
+- [#16352](https://github.com/Sylius/Sylius/issues/16352) [CS][DX] Refactor
+
+## v1.12.16 (2024-05-10)
+
+#### Details
+
+- [#16190](https://github.com/Sylius/Sylius/issues/16190) Fix products grid ([@kulczy](https://github.com/kulczy))
+- [#16196](https://github.com/Sylius/Sylius/issues/16196) Fix product review validation's notInRangeMessage ([@mpysiak](https://github.com/mpysiak))
+- [#16241](https://github.com/Sylius/Sylius/issues/16241) [Security] Fixes for potential XSS in the Checkout, Address Book and Admin Panel ([@GSadee](https://github.com/GSadee))
+- [#16232](https://github.com/Sylius/Sylius/issues/16232) [Maintenance] Update docker docs ([@Wojdylak](https://github.com/Wojdylak))
+
+## v1.12.15 (2024-04-23)
+
+#### Details
+
+- [#16076](https://github.com/Sylius/Sylius/issues/16076) BUGFIX: [AdminBundle] #16031 wrap long text in notes section ([@crydotsnake](https://github.com/crydotsnake))
+- [#16099](https://github.com/Sylius/Sylius/issues/16099) BUGFIX: [ShopBundle] #16068 wrap long text in product description ([@crydotsnake](https://github.com/crydotsnake))
+- [#15510](https://github.com/Sylius/Sylius/issues/15510) [Documentation] Update docs/book/architecture/state_machine.rst ([@benbd5](https://github.com/benbd5), [@GSadee](https://github.com/GSadee))
+- [#16125](https://github.com/Sylius/Sylius/issues/16125) [Documentation] Update release dates for 1.13 and 2.0 versions ([@GSadee](https://github.com/GSadee))
+- [#16128](https://github.com/Sylius/Sylius/issues/16128) Add twig 3.9.0 conflict ([@mpysiak](https://github.com/mpysiak))
+- [#16131](https://github.com/Sylius/Sylius/issues/16131) Revert conflict to twig/intl-extra ([@GSadee](https://github.com/GSadee))
+- [#16134](https://github.com/Sylius/Sylius/issues/16134) Fix Sylius logo in READMEs of Bundles & Components ([@mpysiak](https://github.com/mpysiak))
+- [#16158](https://github.com/Sylius/Sylius/issues/16158) Update dead link in drivers.rst ([@binhuq](https://github.com/binhuq))
+
+## v1.12.14 (2024-03-25)
+
+#### Details
+
+- [#13777](https://github.com/Sylius/Sylius/issues/13777) [Locale] Change language negotiation to RFC 4647 based ([@gseric](https://github.com/gseric))
+- [#15435](https://github.com/Sylius/Sylius/issues/15435) [Checkout] Prevent extra fields when login in on addressing page ([@Jibbarth](https://github.com/Jibbarth))
+- [#15614](https://github.com/Sylius/Sylius/issues/15614) [Admin][UI] Fix csrf error breaking admin form ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15617](https://github.com/Sylius/Sylius/issues/15617) Switch JS session Behat driver to the Symfony Panther ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15620](https://github.com/Sylius/Sylius/issues/15620) Fix CI ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15642](https://github.com/Sylius/Sylius/issues/15642) [Admin] Add official support submenu in admin panel ([@GSadee](https://github.com/GSadee))
+- [#15656](https://github.com/Sylius/Sylius/issues/15656) [AUTO] Updated translations from Crowdin (1.12) ([@SyliusBot](https://github.com/SyliusBot))
+- [#15672](https://github.com/Sylius/Sylius/issues/15672) Typo cart-flow.rst ([@zairigimad](https://github.com/zairigimad))
+- [#15687](https://github.com/Sylius/Sylius/issues/15687) Fix Typo fixtures.rst ([@zairigimad](https://github.com/zairigimad))
+- [#15696](https://github.com/Sylius/Sylius/issues/15696) [Admin] Do not disable channel base currency when none set ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15698](https://github.com/Sylius/Sylius/issues/15698) New year 2024! 🥳 ([@TheMilek](https://github.com/TheMilek))
+- [#15718](https://github.com/Sylius/Sylius/issues/15718) [Documentation] Extend the maintenance date of 1.12 and update future releases ([@GSadee](https://github.com/GSadee))
+- [#15746](https://github.com/Sylius/Sylius/issues/15746) Add builds checking whether the frontend can be built with all supported nodejs versions ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15749](https://github.com/Sylius/Sylius/issues/15749) [AUTO] Updated translations from Crowdin (1.12) ()
+- [#15761](https://github.com/Sylius/Sylius/issues/15761) [Admin] Add Sylius certification to menu ([@Wojdylak](https://github.com/Wojdylak))
+- [#15796](https://github.com/Sylius/Sylius/issues/15796) Update codeowners ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15805](https://github.com/Sylius/Sylius/issues/15805) Update the license years for the last time ([@GSadee](https://github.com/GSadee))
+- [#15806](https://github.com/Sylius/Sylius/issues/15806) [Documentation] Fix table of supported versions ([@GSadee](https://github.com/GSadee))
+- [#15815](https://github.com/Sylius/Sylius/issues/15815) Update the branch-aliases ([@Wojdylak](https://github.com/Wojdylak))
+- [#15824](https://github.com/Sylius/Sylius/issues/15824) Bump up symfony/flex version ([@GSadee](https://github.com/GSadee))
+- [#15839](https://github.com/Sylius/Sylius/issues/15839) [FLYSYSTEM] Add directory visibility as public to local storage ([@Wojdylak](https://github.com/Wojdylak))
+- [#15853](https://github.com/Sylius/Sylius/issues/15853) [ProductAttribute] Use value of options when use "Apply to all" ([@Jibbarth](https://github.com/Jibbarth))
+- [#15859](https://github.com/Sylius/Sylius/issues/15859) FIX zoneMembers not unique ID ([@TheMilek](https://github.com/TheMilek))
+- [#15900](https://github.com/Sylius/Sylius/issues/15900) BUGFIX: #12681 add missing required class  to provincecode select input ([@crydotsnake](https://github.com/crydotsnake))
+- [#15909](https://github.com/Sylius/Sylius/issues/15909) BUGFIX: #15908 [AdminBundle] missing br tag for spacing for product media tab button ([@crydotsnake](https://github.com/crydotsnake))
+- [#15939](https://github.com/Sylius/Sylius/issues/15939) BUGFIX: #15938 [AdminBundle] add spacing between choose file button and uploaded image in image_widget ([@crydotsnake](https://github.com/crydotsnake))
+- [#15956](https://github.com/Sylius/Sylius/issues/15956) Bye Sylius Forum ☠️ ([@CoderMaggie](https://github.com/CoderMaggie))
+- [#15957](https://github.com/Sylius/Sylius/issues/15957) Update README.md remove info about forum ([@damonsson](https://github.com/damonsson))
+- [#15968](https://github.com/Sylius/Sylius/issues/15968) Remove info about forum from Admin panel and documentation ([@GSadee](https://github.com/GSadee))
+- [#15971](https://github.com/Sylius/Sylius/issues/15971) [Docs] Refactor information about GUS ([@CoderMaggie](https://github.com/CoderMaggie))
+- [#15972](https://github.com/Sylius/Sylius/issues/15972) [API] Prevent documenation failing when some endpoints are disabled ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15993](https://github.com/Sylius/Sylius/issues/15993) Bunnyshell improvements for 1.12 ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#16000](https://github.com/Sylius/Sylius/issues/16000) Fix the CODEOWNERS file ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#16003](https://github.com/Sylius/Sylius/issues/16003) Fix the CODEOWNERS file ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#16011](https://github.com/Sylius/Sylius/issues/16011) [Maintenance] Add conflict with api-platform/core 2.7.17 ([@Wojdylak](https://github.com/Wojdylak))
+- [#16017](https://github.com/Sylius/Sylius/issues/16017) [Maintenance] Fix ci ([@Wojdylak](https://github.com/Wojdylak))
+- [#16026](https://github.com/Sylius/Sylius/issues/16026) [DOC] Update an access Denied link ([@lacpandore](https://github.com/lacpandore))
+- [#16038](https://github.com/Sylius/Sylius/issues/16038) [Docs] Improve visibility of Sylius Plus ([@CoderMaggie](https://github.com/CoderMaggie))
+
+## v1.12.13 (2023-12-05)
+
+#### Details
+
+- [#15548](https://github.com/Sylius/Sylius/issues/15548) [FIX] Default variant ([@Prometee](https://github.com/Prometee))
+- [#15565](https://github.com/Sylius/Sylius/issues/15565) [DOC] Fix display link in authorize page ([@Jibbarth](https://github.com/Jibbarth))
+- [#15571](https://github.com/Sylius/Sylius/issues/15571) Resolve psalm issues ([@Wojdylak](https://github.com/Wojdylak))
+- [#15580](https://github.com/Sylius/Sylius/issues/15580) [DX] Improve ChannelCollector customizability ([@coldic3](https://github.com/coldic3))
+- [#15582](https://github.com/Sylius/Sylius/issues/15582) Bye Psalm 👋🏼 ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15585](https://github.com/Sylius/Sylius/issues/15585) [Fix] Do not show cart id after saving ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15587](https://github.com/Sylius/Sylius/issues/15587) [CI] Update Symfony versions in builds ([@GSadee](https://github.com/GSadee))
+- [#15602](https://github.com/Sylius/Sylius/issues/15602) Add the sylius-labs/suite-tags-extension package ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15603](https://github.com/Sylius/Sylius/issues/15603) Fix build ([@jakubtobiasz](https://github.com/jakubtobiasz))
+
+## v1.12.12 (2023-11-17)
+
+#### Details
+
+- [#15176](https://github.com/Sylius/Sylius/issues/15176) Add if_array check in ProductAttributeValueNormalizer.php ([@sdrenth](https://github.com/sdrenth), [@GSadee](https://github.com/GSadee))
+- [#15273](https://github.com/Sylius/Sylius/issues/15273) [Issue 15271] - Get product variant by id ([@ulinskas](https://github.com/ulinskas), [@GSadee](https://github.com/GSadee))
+- [#15287](https://github.com/Sylius/Sylius/issues/15287) Make the User class compatible with Symfony 6 to use encoder_name ([@delyriand](https://github.com/delyriand), [@GSadee](https://github.com/GSadee))
+- [#15389](https://github.com/Sylius/Sylius/issues/15389) [FIX] Restrict NonChannelLocaleListener to the routes having _locale attribut ([@Prometee](https://github.com/Prometee))
+- [#15402](https://github.com/Sylius/Sylius/issues/15402) Fix failing phpspec scenario on Symfony 6.3.5 and above ([@GSadee](https://github.com/GSadee))
+- [#15416](https://github.com/Sylius/Sylius/issues/15416) [FIX][EMAIL] Use raw filter to avoid html encoded chars ([@Prometee](https://github.com/Prometee))
+- [#15430](https://github.com/Sylius/Sylius/issues/15430) [Fix] Early return in CartCollector on stateless requests ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15437](https://github.com/Sylius/Sylius/issues/15437) [CS][DX] Refactor ([@bot](https://github.com/bot)@[@sylius](https://github.com/sylius).[@org](https://github.com/org))
+- [#15449](https://github.com/Sylius/Sylius/issues/15449) [Behat] Set a LocaleCode via the HTTP Accept-Language header ([@Rafikooo](https://github.com/Rafikooo))
+- [#15487](https://github.com/Sylius/Sylius/issues/15487) Update taxation.rst ([@zairigimad](https://github.com/zairigimad), [@GSadee](https://github.com/GSadee))
+- [#15507](https://github.com/Sylius/Sylius/issues/15507) Fix cart styles after form submission (data-route="sylius_shop_cart_c… ([@dsbe-ak](https://github.com/dsbe-ak))
+- [#15512](https://github.com/Sylius/Sylius/issues/15512) [Maintenance] Fix request parameters accessing ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15513](https://github.com/Sylius/Sylius/issues/15513) Update BootstrapTheme install doc ([@Florian-Merle](https://github.com/Florian-Merle))
+- [#15515](https://github.com/Sylius/Sylius/issues/15515) Update catalog_promotions.rst, fix links to BatchedApplyCatalogPromotionsOnVariantsCommandDispatcher and ApplyCatalogPromotionsOnVariants ([@vldmr-k](https://github.com/vldmr-k))
+- [#15527](https://github.com/Sylius/Sylius/issues/15527) Disable check for security vulnerabilites step ([@Wojdylak](https://github.com/Wojdylak))
+- [#15531](https://github.com/Sylius/Sylius/issues/15531) Add ignore-parse-errors to composer require checker ([@Wojdylak](https://github.com/Wojdylak))
+
+## v1.12.11 (2023-09-18)
+
+#### Details
+
+- [#12519](https://github.com/Sylius/Sylius/issues/12519) [ProductBundle] Add validation for product meta keywords & description ([@DieterHolvoet](https://github.com/DieterHolvoet), [@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#12894](https://github.com/Sylius/Sylius/issues/12894) Make CheckoutResolver fail safe ([@vvasiloi](https://github.com/vvasiloi), [@NoResponseMate](https://github.com/NoResponseMate))
+- [#13334](https://github.com/Sylius/Sylius/issues/13334) [Admin] Display flag properly based on locale code on product and catalog promotion details ([@adpeyre](https://github.com/adpeyre))
+- [#13954](https://github.com/Sylius/Sylius/issues/13954) [Docker] Add custom docker composer file to gitignore ([@lchrusciel](https://github.com/lchrusciel))
+- [#14806](https://github.com/Sylius/Sylius/issues/14806) [Admin][ProductOptions] Changed form ProductOptionChoiceType to Produ… ([@ulinskas](https://github.com/ulinskas))
+- [#15218](https://github.com/Sylius/Sylius/issues/15218) Fix attributes creation while the default locale is not available in our store ([@TheMilek](https://github.com/TheMilek), [@NoResponseMate](https://github.com/NoResponseMate))
+- [#15219](https://github.com/Sylius/Sylius/issues/15219) [Admin] Fix inconsistent routing ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15225](https://github.com/Sylius/Sylius/issues/15225) Fix updating product taxons positions ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15226](https://github.com/Sylius/Sylius/issues/15226) Update checkout.rst ([@zairigimad](https://github.com/zairigimad))
+- [#15227](https://github.com/Sylius/Sylius/issues/15227) CartBlamerListener not found , replace with ShopCartBlamerListener ([@zairigimad](https://github.com/zairigimad))
+- [#15228](https://github.com/Sylius/Sylius/issues/15228) [Docs] Update UPGRADE-1.12.md ([@UlrichHP](https://github.com/UlrichHP))
+- [#15229](https://github.com/Sylius/Sylius/issues/15229) Update symfony/service-contracts in composer.json to update Sylius to 1.12.10 ([@UlrichHP](https://github.com/UlrichHP))
+- [#15231](https://github.com/Sylius/Sylius/issues/15231) Prevent skipping choosing payment step once skipping payment step allowed, but no payment method is available ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15232](https://github.com/Sylius/Sylius/issues/15232) [Documentation][Admin] Add notes about accessing guest orders ([@GSadee](https://github.com/GSadee))
+- [#15234](https://github.com/Sylius/Sylius/issues/15234) Fix Sylius versions in UPGRADE file ([@GSadee](https://github.com/GSadee))
+- [#15245](https://github.com/Sylius/Sylius/issues/15245) Fix CI 2023-08-21 ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15250](https://github.com/Sylius/Sylius/issues/15250) [Admin][Country] Add violation for adding provinces with duplicated codes or names ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15251](https://github.com/Sylius/Sylius/issues/15251) Fix error with being unable to add product review while being logged in using remember me ([@TheMilek](https://github.com/TheMilek))
+- [#15252](https://github.com/Sylius/Sylius/issues/15252) [Admin][Taxon] Fix slug generation to work based on the parent field ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15255](https://github.com/Sylius/Sylius/issues/15255) [Admin][Product] Add language names to attribute values ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15263](https://github.com/Sylius/Sylius/issues/15263) Update default Rules of cart promotion ([@zairigimad](https://github.com/zairigimad))
+- [#15268](https://github.com/Sylius/Sylius/issues/15268) Fix configuring amount for cart promotions item percentage discount actions ([@TheMilek](https://github.com/TheMilek), [@NoResponseMate](https://github.com/NoResponseMate))
+- [#15272](https://github.com/Sylius/Sylius/issues/15272) Fix "jumping" taxons while moving up or down ([@igormukhingmailcom](https://github.com/igormukhingmailcom), [@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15277](https://github.com/Sylius/Sylius/issues/15277) Prevent removing product/taxon if it is already used in promotion rule ([@TheMilek](https://github.com/TheMilek), [@NoResponseMate](https://github.com/NoResponseMate))
+- [#15280](https://github.com/Sylius/Sylius/issues/15280) Prevent throwing 500 while finalizing an order when at least one item has become tracked ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15290](https://github.com/Sylius/Sylius/issues/15290) Add a note about payment-related events ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15311](https://github.com/Sylius/Sylius/issues/15311) [API] fix prefix url on locale api path ([@oallain](https://github.com/oallain))
+
+## v1.12.10 (2023-08-11)
+
+#### Details
+
+- [#12502](https://github.com/Sylius/Sylius/issues/12502) Recalculate order adjustments total after adjustment is added or remo… ([@kayue](https://github.com/kayue), [@SirDomin](https://github.com/SirDomin), [@TheMilek](https://github.com/TheMilek))
+- [#15128](https://github.com/Sylius/Sylius/issues/15128) [Docs] Sylius Plus installation guide update ([@Rafikooo](https://github.com/Rafikooo))
+- [#15148](https://github.com/Sylius/Sylius/issues/15148) Fix rendering admin creation form with errors ([@jakubtobiasz](https://github.com/jakubtobiasz), [@NoResponseMate](https://github.com/NoResponseMate))
+- [#15162](https://github.com/Sylius/Sylius/issues/15162) Abstracts out ShopBasedCartContext::reset to an interface ([@palttamas](https://github.com/palttamas), [@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15178](https://github.com/Sylius/Sylius/issues/15178) [CS][DX] Refactor ()
+- [#15184](https://github.com/Sylius/Sylius/issues/15184) Cover the order item units based tax calculation strategy with scenarios ([@GSadee](https://github.com/GSadee))
+- [#15185](https://github.com/Sylius/Sylius/issues/15185) Avoid displaying taxon names inside of autocomplete in different locales than the store ([@TheMilek](https://github.com/TheMilek))
+- [#15186](https://github.com/Sylius/Sylius/issues/15186) Add a conflict for doctrine/orm:2.15.4 ([@GSadee](https://github.com/GSadee))
+- [#15187](https://github.com/Sylius/Sylius/issues/15187) [Order] Extract payments removal from OrderPaymentProcessor ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15191](https://github.com/Sylius/Sylius/issues/15191) Readme banner refresh ([@kulczy](https://github.com/kulczy))
+- [#15195](https://github.com/Sylius/Sylius/issues/15195) Fix percentage discount's decimal rounding issue  ([@TheMilek](https://github.com/TheMilek))
+- [#15197](https://github.com/Sylius/Sylius/issues/15197) Add a conflict for doctrine/orm 2.15.2 and higher ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15200](https://github.com/Sylius/Sylius/issues/15200) [Docs] Update order processing info ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15202](https://github.com/Sylius/Sylius/issues/15202) Update catalog_promotions.rst ([@zairigimad](https://github.com/zairigimad))
+- [#15204](https://github.com/Sylius/Sylius/issues/15204) Resolve comments from #15195 ([@TheMilek](https://github.com/TheMilek))
+- [#15205](https://github.com/Sylius/Sylius/issues/15205) [Maintenance] Remove depractions from OrderPaymentProcessor ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15207](https://github.com/Sylius/Sylius/issues/15207) [Behat] Fix minor mistake in names of scenarios for receiving discount according to promotions priorities ([@GSadee](https://github.com/GSadee))
+- [#15213](https://github.com/Sylius/Sylius/issues/15213) Allow installing doctrine/orm 2.15.* ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15214](https://github.com/Sylius/Sylius/issues/15214) Fix configuring amount for catalog promotions fixed discount actions ([@TheMilek](https://github.com/TheMilek))
+- [#15217](https://github.com/Sylius/Sylius/issues/15217) Fix cart styles after coupon form submission failure ([@shochdoerfer](https://github.com/shochdoerfer))
+
+## v1.12.9 (2023-07-21)
+
+#### Details
+
+- [#12555](https://github.com/Sylius/Sylius/issues/12555) Fix misleading signing in the admin panel feature description ([@Mateuszry](https://github.com/Mateuszry))
+- [#13824](https://github.com/Sylius/Sylius/issues/13824) Calculate tax with decimal precision and distribute proportionally across order items ([@vvasiloi](https://github.com/vvasiloi), [@GSadee](https://github.com/GSadee), [@TheMilek](https://github.com/TheMilek))
+- [#15014](https://github.com/Sylius/Sylius/issues/15014) Change prority for custom ChannelContext ([@l-vo](https://github.com/l-vo))
+- [#15037](https://github.com/Sylius/Sylius/issues/15037) [Docs] add image to entity via one-to-one association ([@vvasiloi](https://github.com/vvasiloi))
+- [#15059](https://github.com/Sylius/Sylius/issues/15059) Upgrade PHPStan to level 5 ([@lruozzi9](https://github.com/lruozzi9))
+- [#15064](https://github.com/Sylius/Sylius/issues/15064) [Orders][API] Validate endpoints ([@Rafikooo](https://github.com/Rafikooo))
+- [#15065](https://github.com/Sylius/Sylius/issues/15065) [CS][DX] Refactor ([@github-actions](https://github.com/github-actions)[[@bot](https://github.com/bot)])
+- [#15069](https://github.com/Sylius/Sylius/issues/15069) [Psalm] CacheableSupportsMethodInterface in the deprecation list ([@Rafikooo](https://github.com/Rafikooo))
+- [#15075](https://github.com/Sylius/Sylius/issues/15075) Add a conflict for doctrine/orm:2.15.2 ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15076](https://github.com/Sylius/Sylius/issues/15076) [CS][DX] Refactor ([@github-actions](https://github.com/github-actions)[[@bot](https://github.com/bot)])
+- [#15079](https://github.com/Sylius/Sylius/issues/15079) Upgrade PHPStan to level 6 ([@lruozzi9](https://github.com/lruozzi9))
+- [#15086](https://github.com/Sylius/Sylius/issues/15086) [Fixture] Improve LazyOption performance ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15088](https://github.com/Sylius/Sylius/issues/15088) [Promotion] Ignore coupon based promotions when when processing an order with no coupon  ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15101](https://github.com/Sylius/Sylius/issues/15101) [Maintenance] Launch of `Sylius Sp. z o.o.` copyright owner across project files ([@Rafikooo](https://github.com/Rafikooo))
+- [#15110](https://github.com/Sylius/Sylius/issues/15110) Include children taxons while executing InForTaxonsScopeVariantChecker ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15116](https://github.com/Sylius/Sylius/issues/15116) Ignore ApiPlatform\Core\Api\IriConverterInterface DeprecatedClass Psalm error ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15118](https://github.com/Sylius/Sylius/issues/15118) Fix CI ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15130](https://github.com/Sylius/Sylius/issues/15130) Add conflict to symfony/validator 5.4.25, 6.2.12 and 6.3.1 ([@TheMilek](https://github.com/TheMilek))
+- [#15137](https://github.com/Sylius/Sylius/issues/15137) [Maintenance] Improve ProportionalIntegerDistributor to keep original index ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15139](https://github.com/Sylius/Sylius/issues/15139) Fix "Show product in the shop page" button ([@mamazu](https://github.com/mamazu), [@jakubtobiasz](https://github.com/jakubtobiasz), [@GSadee](https://github.com/GSadee))
+- [#15145](https://github.com/Sylius/Sylius/issues/15145) [Bunnyshell] Adjust the workflows for Fork PRs ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15147](https://github.com/Sylius/Sylius/issues/15147) [Behat] Minor improvements for accessing shop product page scenarios ([@GSadee](https://github.com/GSadee))
+- [#15154](https://github.com/Sylius/Sylius/issues/15154) Add a conflict for "stof/doctrine-extensions-bundle": "1.8.0" ([@jakubtobiasz](https://github.com/jakubtobiasz))
+- [#15157](https://github.com/Sylius/Sylius/issues/15157) [Issue 15151] - Check manager before refreshing object ([@ulinskas](https://github.com/ulinskas))
+- [#15161](https://github.com/Sylius/Sylius/issues/15161) [API] Product filter no longer crashes when using multiple taxons ([@palttamas](https://github.com/palttamas))
+- [#15165](https://github.com/Sylius/Sylius/issues/15165) [API] Fix CommandDenormalizer ignoring custom property names ([@NoResponseMate](https://github.com/NoResponseMate))
+- [#15170](https://github.com/Sylius/Sylius/issues/15170) Prevent placing an order with a disabled shipping method ([@jakubtobiasz](https://github.com/jakubtobiasz))
+
 ## v1.12.8 (2023-05-25)
 
 #### Details

@@ -19,8 +19,6 @@ use Psr\Cache\CacheItemPoolInterface;
 use Sylius\Bundle\ApiBundle\Provider\PathPrefixProviderInterface;
 
 /**
- * @experimental
- *
  * This class is based on src/Bridge/Symfony/Routing/CachedRouteNameResolver.php, but has added logic for matching /shop, /admin prefixes
  */
 final class CachedRouteNameResolver implements RouteNameResolverInterface
@@ -49,11 +47,7 @@ final class CachedRouteNameResolver implements RouteNameResolverInterface
         );
 
         return $this->getCached($cacheKey, function () use ($resourceClass, $operationType, $context) {
-            /**
-             * @psalm-suppress TooManyArguments
-             *
-             * @phpstan-ignore-next-line
-             */
+            /** @phpstan-ignore-next-line */
             return $this->decorated->getRouteName($resourceClass, $operationType, $context);
         });
     }

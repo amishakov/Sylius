@@ -26,6 +26,8 @@ use Webmozart\Assert\Assert;
 
 final class ManagingCountriesContext implements Context
 {
+    private const MAX_PROVINCE_CODE_LENGTH = 255;
+
     public function __construct(
         private IndexPageInterface $indexPage,
         private CreatePageInterface $createPage,
@@ -74,6 +76,7 @@ final class ManagingCountriesContext implements Context
 
     /**
      * @When I add it
+     * @When I try to add it
      */
     public function iAddIt()
     {
@@ -248,6 +251,14 @@ final class ManagingCountriesContext implements Context
     }
 
     /**
+     * @When I provide a too long province code
+     */
+    public function iProvideTooLongProvinceCode(): void
+    {
+        $this->iSpecifyTheProvinceCode(sprintf('US-%s', str_repeat('A', self::MAX_PROVINCE_CODE_LENGTH)));
+    }
+
+    /**
      * @Then I should be notified that :element is required
      */
     public function iShouldBeNotifiedThatElementIsRequired($element)
@@ -265,11 +276,22 @@ final class ManagingCountriesContext implements Context
     }
 
     /**
-     * @Then I should be notified that province code must be unique
+     * @Then /^I should be notified that province (code|name) must be unique$/
      */
-    public function iShouldBeNotifiedThatProvinceCodeMustBeUnique(): void
+    public function iShouldBeNotifiedThatProvinceCodeMustBeUnique(string $field): void
     {
-        Assert::same($this->updatePage->getValidationMessage('code'), 'Province code must be unique.');
+        Assert::same($this->updatePage->getValidationMessage($field), sprintf('Province %s must be unique.', $field));
+    }
+
+    /**
+     * @Then I should be notified that all province codes and names within this country need to be unique
+     */
+    public function iShouldBeNotifiedThatAllProvinceCodesAndNamesWithinThisCountryNeedToBeUnique(): void
+    {
+        Assert::inArray(
+            'All provinces within this country need to have unique codes and names.',
+            $this->updatePage->getFormValidationErrors(),
+        );
     }
 
     /**
@@ -278,6 +300,14 @@ final class ManagingCountriesContext implements Context
     public function iShouldBeNotifiedThatNameOfTheProvinceIsRequired(): void
     {
         Assert::same($this->updatePage->getValidationMessage('name'), 'Please enter province name.');
+    }
+
+    /**
+     * @Then I should be informed that the provided province code is too long
+     */
+    public function iShouldBeInformedThatTheCodeIsTooLong(): void
+    {
+        Assert::contains($this->updatePage->getValidationMessage('code'), 'The code must not be longer than');
     }
 
     /**

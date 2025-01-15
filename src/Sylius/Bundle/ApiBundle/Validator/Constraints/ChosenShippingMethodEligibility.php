@@ -15,12 +15,13 @@ namespace Sylius\Bundle\ApiBundle\Validator\Constraints;
 
 use Symfony\Component\Validator\Constraint;
 
-/** @experimental */
 final class ChosenShippingMethodEligibility extends Constraint
 {
     public string $message = 'sylius.shipping_method.not_available';
 
     public string $notFoundMessage = 'sylius.shipping_method.not_found';
+
+    public string $shipmentNotFoundMessage = 'sylius.shipment.not_found';
 
     /** @var string */
     public $shippingAddressNotFoundMessage = 'sylius.shipping_method.shipping_address_not_found';

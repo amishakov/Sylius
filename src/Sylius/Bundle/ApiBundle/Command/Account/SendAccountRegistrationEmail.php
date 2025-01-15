@@ -13,11 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ApiBundle\Command\Account;
 
-/**
- * @experimental
- *
- * @psalm-immutable
- */
+/** @immutable */
 class SendAccountRegistrationEmail
 {
     /** @var string */

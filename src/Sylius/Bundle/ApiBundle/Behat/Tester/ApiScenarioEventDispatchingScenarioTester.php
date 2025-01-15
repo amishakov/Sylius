@@ -23,7 +23,6 @@ use Behat\Testwork\Tester\Result\TestResult;
 use Behat\Testwork\Tester\Setup\Setup;
 use Behat\Testwork\Tester\Setup\Teardown;
 
-/** @experimental */
 final class ApiScenarioEventDispatchingScenarioTester implements ScenarioTester
 {
     public function __construct(private ScenarioTester $baseTester)
@@ -41,7 +40,10 @@ final class ApiScenarioEventDispatchingScenarioTester implements ScenarioTester
         }
 
         $tags = $scenario->getTags();
-        if (($key = array_search('javascript', $tags)) !== false) {
+        if (
+            ($key = array_search('javascript', $tags)) !== false ||
+            ($key = array_search('mink:chromedriver', $tags)) !== false
+        ) {
             unset($tags[$key]);
         }
 

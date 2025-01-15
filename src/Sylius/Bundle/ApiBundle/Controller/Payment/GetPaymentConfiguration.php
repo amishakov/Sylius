@@ -13,14 +13,13 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ApiBundle\Controller\Payment;
 
+use Sylius\Bundle\ApiBundle\Exception\PaymentNotFoundException;
 use Sylius\Bundle\ApiBundle\Provider\CompositePaymentConfigurationProviderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Repository\PaymentRepositoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Webmozart\Assert\Assert;
 
-/** @experimental */
 final class GetPaymentConfiguration
 {
     public function __construct(
@@ -31,13 +30,18 @@ final class GetPaymentConfiguration
 
     public function __invoke(Request $request): JsonResponse
     {
-        /** @var PaymentInterface|null $payment */
-        $payment = $this->paymentRepository->findOneByOrderToken(
-            $request->attributes->get('paymentId'),
-            $request->attributes->get('tokenValue'),
-        );
+        $paymentId = $request->attributes->get('paymentId');
+        $tokenValue = $request->attributes->get('tokenValue');
+        if (null === $paymentId || null === $tokenValue) {
+            throw new PaymentNotFoundException();
+        }
 
-        Assert::notNull($payment);
+        /** @var PaymentInterface|null $payment */
+        $payment = $this->paymentRepository->findOneByOrderToken($paymentId, $tokenValue);
+
+        if ($payment === null) {
+            throw new PaymentNotFoundException();
+        }
 
         return new JsonResponse($this->compositePaymentConfigurationProvider->provide($payment));
     }

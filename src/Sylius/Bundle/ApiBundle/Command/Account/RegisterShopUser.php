@@ -16,64 +16,19 @@ namespace Sylius\Bundle\ApiBundle\Command\Account;
 use Sylius\Bundle\ApiBundle\Command\ChannelCodeAwareInterface;
 use Sylius\Bundle\ApiBundle\Command\LocaleCodeAwareInterface;
 
-/**
- * @experimental
- */
 class RegisterShopUser implements ChannelCodeAwareInterface, LocaleCodeAwareInterface
 {
-    /**
-     * @psalm-immutable
-     *
-     * @var string
-     */
-    public $firstName;
+    public ?string $channelCode = null;
 
-    /**
-     * @psalm-immutable
-     *
-     * @var string
-     */
-    public $lastName;
-
-    /**
-     * @psalm-immutable
-     *
-     * @var string
-     */
-    public $email;
-
-    /**
-     * @psalm-immutable
-     *
-     * @var string
-     */
-    public $password;
-
-    /**
-     * @psalm-immutable
-     *
-     * @var bool
-     */
-    public $subscribedToNewsletter;
-
-    /** @var string|null */
-    public $channelCode;
-
-    /** @var string|null */
-    public $localeCode;
+    public ?string $localeCode = null;
 
     public function __construct(
-        string $firstName,
-        string $lastName,
-        string $email,
-        string $password,
-        bool $subscribedToNewsletter = false,
+        public readonly string $firstName,
+        public readonly string $lastName,
+        public readonly string $email,
+        public readonly string $password,
+        public readonly bool $subscribedToNewsletter = false,
     ) {
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-        $this->email = $email;
-        $this->password = $password;
-        $this->subscribedToNewsletter = $subscribedToNewsletter;
     }
 
     public function getChannelCode(): string

@@ -48,7 +48,7 @@ final class ShippingContext implements Context
     }
 
     /**
-     * @Given the store ships everything for free within the :zone zone
+     * @Given the store ships everything for Free within the :zone zone
      */
     public function storeShipsEverythingForFree(ZoneInterface $zone): void
     {
@@ -294,8 +294,8 @@ final class ShippingContext implements Context
         string $shippingMethodName,
         int $firstFee,
         ChannelInterface $firstChannel,
-        int $secondFee = null,
-        ChannelInterface $secondChannel = null,
+        ?int $secondFee = null,
+        ?ChannelInterface $secondChannel = null,
     ): void {
         $configuration = [];
         $channels = [];
@@ -544,6 +544,24 @@ final class ShippingContext implements Context
         ]);
 
         $this->addRuleToShippingMethod($rule, $shippingMethod);
+    }
+
+    /**
+     * @Given /^(this shipping method) has been disabled$/
+     * @Given /^(this shipping method) has been disabled for ("[^"]+" channel)$/
+     */
+    public function thisShippingMethodHasBeenDisabled(ShippingMethodInterface $shippingMethod, ?ChannelInterface $channel = null): void
+    {
+        /** @var ShippingMethodInterface $shippingMethod */
+        $shippingMethod = $this->shippingMethodRepository->findOneBy(['code' => $shippingMethod->getCode()]);
+
+        if (null === $channel) {
+            $shippingMethod->disable();
+        } else {
+            $shippingMethod->removeChannel($channel);
+        }
+
+        $this->shippingMethodManager->flush();
     }
 
     private function getConfigurationByChannels(array $channels, int $amount = 0): array

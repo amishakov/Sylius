@@ -17,15 +17,10 @@ use Doctrine\Common\Collections\Collection;
 
 interface ReviewableInterface
 {
-    /**
-     * @return string
-     */
     public function getName(): ?string;
 
     /**
-     * @return Collection|ReviewInterface[]
-     *
-     * @psalm-return Collection<array-key, ReviewInterface>
+     * @return Collection<array-key, ReviewInterface>
      */
     public function getReviews(): Collection;
 

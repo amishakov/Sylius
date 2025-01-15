@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace Sylius\Bundle\CoreBundle\Checkout;
 
 use SM\Factory\FactoryInterface;
+use Sylius\Abstraction\StateMachine\StateMachineInterface;
+use Sylius\Abstraction\StateMachine\WinzouStateMachineAdapter;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Order\Context\CartContextInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -29,8 +31,26 @@ final class CheckoutResolver implements EventSubscriberInterface
         private CartContextInterface $cartContext,
         private CheckoutStateUrlGeneratorInterface $urlGenerator,
         private RequestMatcherInterface $requestMatcher,
-        private FactoryInterface $stateMachineFactory,
+        private FactoryInterface|StateMachineInterface $stateMachineFactory,
     ) {
+        if ($this->stateMachineFactory instanceof FactoryInterface) {
+            trigger_deprecation(
+                'sylius/core-bundle',
+                '1.13',
+                sprintf(
+                    'Passing an instance of "%s" as the fourth argument is deprecated. It will accept only instances of "%s" in Sylius 2.0.',
+                    FactoryInterface::class,
+                    StateMachineInterface::class,
+                ),
+            );
+        }
+    }
+
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            KernelEvents::REQUEST => 'onKernelRequest',
+        ];
     }
 
     public function onKernelRequest(RequestEvent $event): void
@@ -55,31 +75,40 @@ final class CheckoutResolver implements EventSubscriberInterface
         $order = $this->cartContext->getCart();
         if ($order->isEmpty()) {
             $event->setResponse(new RedirectResponse($this->urlGenerator->generateForCart()));
+
+            return;
         }
 
-        $stateMachine = $this->stateMachineFactory->get($order, $this->getRequestedGraph($request));
+        $graph = $this->getRequestedGraph($request);
+        $transition = $this->getRequestedTransition($request);
 
-        if ($stateMachine->can($this->getRequestedTransition($request))) {
+        if (null === $graph || null === $transition) {
+            return;
+        }
+
+        if ($this->getStateMachine()->can($order, $graph, $transition)) {
             return;
         }
 
         $event->setResponse(new RedirectResponse($this->urlGenerator->generateForOrderCheckoutState($order)));
     }
 
-    public static function getSubscribedEvents(): array
+    private function getRequestedGraph(Request $request): ?string
     {
-        return [
-            KernelEvents::REQUEST => 'onKernelRequest',
-        ];
+        return $request->attributes->get('_sylius', [])['state_machine']['graph'] ?? null;
     }
 
-    private function getRequestedGraph(Request $request): string
+    private function getRequestedTransition(Request $request): ?string
     {
-        return $request->attributes->get('_sylius')['state_machine']['graph'];
+        return $request->attributes->get('_sylius', [])['state_machine']['transition'] ?? null;
     }
 
-    private function getRequestedTransition(Request $request): string
+    private function getStateMachine(): StateMachineInterface
     {
-        return $request->attributes->get('_sylius')['state_machine']['transition'];
+        if ($this->stateMachineFactory instanceof FactoryInterface) {
+            return new WinzouStateMachineAdapter($this->stateMachineFactory);
+        }
+
+        return $this->stateMachineFactory;
     }
 }

@@ -26,30 +26,16 @@ interface ProductOptionInterface extends
     TimestampableInterface,
     TranslatableInterface
 {
-    /**
-     * @return string
-     */
     public function getName(): ?string;
 
-    /**
-     * @param string $name
-     */
     public function setName(?string $name): void;
 
-    /**
-     * @return int
-     */
     public function getPosition(): ?int;
 
-    /**
-     * @param int $position
-     */
     public function setPosition(?int $position): void;
 
     /**
-     * @return Collection|ProductOptionValueInterface[]
-     *
-     * @psalm-return Collection<array-key, ProductOptionValueInterface>
+     * @return Collection<array-key, ProductOptionValueInterface>
      */
     public function getValues(): Collection;
 

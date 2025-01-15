@@ -14,12 +14,13 @@ declare(strict_types=1);
 namespace Sylius\Component\Promotion\Model;
 
 use Doctrine\Common\Collections\Collection;
+use Sylius\Component\Resource\Model\ArchivableInterface;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 use Sylius\Component\Resource\Model\TranslatableInterface;
 
-interface PromotionInterface extends CodeAwareInterface, TimestampableInterface, TranslatableInterface, ResourceInterface
+interface PromotionInterface extends ArchivableInterface, CodeAwareInterface, TimestampableInterface, TranslatableInterface, ResourceInterface
 {
     public function getName(): ?string;
 
@@ -62,9 +63,7 @@ interface PromotionInterface extends CodeAwareInterface, TimestampableInterface,
     public function setCouponBased(?bool $couponBased): void;
 
     /**
-     * @return Collection|PromotionCouponInterface[]
-     *
-     * @psalm-return Collection<array-key, PromotionCouponInterface>
+     * @return Collection<array-key, PromotionCouponInterface>
      */
     public function getCoupons(): Collection;
 
@@ -77,9 +76,7 @@ interface PromotionInterface extends CodeAwareInterface, TimestampableInterface,
     public function removeCoupon(PromotionCouponInterface $coupon): void;
 
     /**
-     * @return Collection|PromotionRuleInterface[]
-     *
-     * @psalm-return Collection<array-key, PromotionRuleInterface>
+     * @return Collection<array-key, PromotionRuleInterface>
      */
     public function getRules(): Collection;
 
@@ -92,9 +89,7 @@ interface PromotionInterface extends CodeAwareInterface, TimestampableInterface,
     public function removeRule(PromotionRuleInterface $rule): void;
 
     /**
-     * @return Collection|PromotionActionInterface[]
-     *
-     * @psalm-return Collection<array-key, PromotionActionInterface>
+     * @return Collection<array-key, PromotionActionInterface>
      */
     public function getActions(): Collection;
 
@@ -109,4 +104,8 @@ interface PromotionInterface extends CodeAwareInterface, TimestampableInterface,
     public function getAppliesToDiscounted(): bool;
 
     public function setAppliesToDiscounted(bool $applyOnDiscounted): void;
+
+    public function getLabel(): ?string;
+
+    public function setLabel(?string $label): void;
 }

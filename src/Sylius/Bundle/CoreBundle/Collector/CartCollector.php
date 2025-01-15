@@ -76,8 +76,12 @@ final class CartCollector extends DataCollector
         return $this->data['states'] ?? null;
     }
 
-    public function collect(Request $request, Response $response, \Throwable $exception = null): void
+    public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
+        if ($request->attributes->getBoolean('_stateless')) {
+            return;
+        }
+
         try {
             /** @var OrderInterface $cart */
             $cart = $this->cartContext->getCart();

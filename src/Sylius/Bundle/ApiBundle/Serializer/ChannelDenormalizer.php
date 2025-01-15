@@ -15,24 +15,30 @@ namespace Sylius\Bundle\ApiBundle\Serializer;
 
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ChannelPriceHistoryConfigInterface;
+use Sylius\Component\Core\Model\ShopBillingDataInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;
 use Webmozart\Assert\Assert;
 
-/** @experimental */
 final class ChannelDenormalizer implements ContextAwareDenormalizerInterface, DenormalizerAwareInterface
 {
     use DenormalizerAwareTrait;
 
     private const ALREADY_CALLED = 'sylius_channel_denormalizer_already_called';
 
-    public function __construct(private FactoryInterface $channelPriceHistoryConfigFactory)
-    {
+    /**
+     * @param FactoryInterface<ChannelPriceHistoryConfigInterface> $channelPriceHistoryConfigFactory
+     * @param FactoryInterface<ShopBillingDataInterface> $shopBillingDataFactory
+     */
+    public function __construct(
+        private FactoryInterface $channelPriceHistoryConfigFactory,
+        private FactoryInterface $shopBillingDataFactory,
+    ) {
     }
 
-    public function supportsDenormalization(mixed $data, string $type, string $format = null, array $context = []): bool
+    public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
         return
             !isset($context[self::ALREADY_CALLED]) &&
@@ -41,7 +47,7 @@ final class ChannelDenormalizer implements ContextAwareDenormalizerInterface, De
         ;
     }
 
-    public function denormalize(mixed $data, string $type, string $format = null, array $context = [])
+    public function denormalize(mixed $data, string $type, ?string $format = null, array $context = [])
     {
         $context[self::ALREADY_CALLED] = true;
         $data = (array) $data;
@@ -52,6 +58,12 @@ final class ChannelDenormalizer implements ContextAwareDenormalizerInterface, De
             /** @var ChannelPriceHistoryConfigInterface $channelPriceHistoryConfig */
             $channelPriceHistoryConfig = $this->channelPriceHistoryConfigFactory->createNew();
             $channel->setChannelPriceHistoryConfig($channelPriceHistoryConfig);
+        }
+
+        if (null === $channel->getShopBillingData()) {
+            /** @var ShopBillingDataInterface $shopBillingData */
+            $shopBillingData = $this->shopBillingDataFactory->createNew();
+            $channel->setShopBillingData($shopBillingData);
         }
 
         return $channel;

@@ -15,13 +15,14 @@ namespace Sylius\Component\Promotion\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Sylius\Component\Resource\Model\ArchivableTrait;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 use Sylius\Component\Resource\Model\TranslatableTrait;
 use Sylius\Component\Resource\Model\TranslationInterface;
 
 class Promotion implements PromotionInterface
 {
-    use TimestampableTrait, TranslatableTrait {
+    use ArchivableTrait, TimestampableTrait, TranslatableTrait {
         __construct as private initializeTranslationsCollection;
         getTranslation as private doGetTranslation;
     }
@@ -67,25 +68,13 @@ class Promotion implements PromotionInterface
     /** @var bool */
     protected $couponBased = false;
 
-    /**
-     * @var Collection|PromotionCouponInterface[]
-     *
-     * @psalm-var Collection<array-key, PromotionCouponInterface>
-     */
+    /** @var Collection<array-key, PromotionCouponInterface> */
     protected $coupons;
 
-    /**
-     * @var Collection|PromotionRuleInterface[]
-     *
-     * @psalm-var Collection<array-key, PromotionRuleInterface>
-     */
+    /** @var Collection<array-key, PromotionRuleInterface> */
     protected $rules;
 
-    /**
-     * @var Collection|PromotionActionInterface[]
-     *
-     * @psalm-var Collection<array-key, PromotionActionInterface>
-     */
+    /** @var Collection<array-key, PromotionActionInterface> */
     protected $actions;
 
     protected bool $appliesToDiscounted = true;
@@ -316,6 +305,16 @@ class Promotion implements PromotionInterface
     public function setAppliesToDiscounted(bool $applyOnDiscounted): void
     {
         $this->appliesToDiscounted = $applyOnDiscounted;
+    }
+
+    public function getLabel(): ?string
+    {
+        return $this->getTranslation()->getLabel();
+    }
+
+    public function setLabel(?string $label): void
+    {
+        $this->getTranslation()->setLabel($label);
     }
 
     /** @return PromotionTranslationInterface */

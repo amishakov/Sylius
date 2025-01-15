@@ -58,6 +58,12 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
 
     public function createSearchListQueryBuilder(): QueryBuilder
     {
+        trigger_deprecation(
+            'sylius/core',
+            '1.13',
+            'This method is deprecated and it will be removed in Sylius 2.0. Please use `createCriteriaAwareSearchListQueryBuilder` instead.',
+        );
+
         return $this->createListQueryBuilder()
             ->leftJoin('o.items', 'item')
             ->leftJoin('item.variant', 'variant')
@@ -65,9 +71,52 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         ;
     }
 
+    public function createCriteriaAwareSearchListQueryBuilder(?array $criteria): QueryBuilder
+    {
+        if ($criteria === null) {
+            return $this->createListQueryBuilder();
+        }
+
+        $hasProductCriteria = '' !== $criteria['product'];
+        $hasVariantCriteria = '' !== $criteria['variant'];
+
+        $queryBuilder = $this->createListQueryBuilder();
+
+        if ($hasVariantCriteria || $hasProductCriteria) {
+            $queryBuilder
+                ->leftJoin('o.items', 'item')
+                ->leftJoin('item.variant', 'variant')
+            ;
+        }
+
+        if ($hasProductCriteria) {
+            $queryBuilder
+                ->leftJoin('variant.product', 'product')
+            ;
+        }
+
+        return $queryBuilder;
+    }
+
     public function createByCustomerIdQueryBuilder($customerId): QueryBuilder
     {
+        trigger_deprecation(
+            'sylius/core',
+            '1.13',
+            'This method is deprecated and it will be removed in Sylius 2.0. Please use `createByCustomerIdCriteriaAwareQueryBuilder` instead.',
+        );
+
         return $this->createListQueryBuilder()
+            ->andWhere('o.customer = :customerId')
+            ->setParameter('customerId', $customerId)
+        ;
+    }
+
+    public function createByCustomerIdCriteriaAwareQueryBuilder(?array $criteria, string $customerId): QueryBuilder
+    {
+        $queryBuilder = $this->createCriteriaAwareSearchListQueryBuilder($criteria);
+
+        return $queryBuilder
             ->andWhere('o.customer = :customerId')
             ->setParameter('customerId', $customerId)
         ;
@@ -134,7 +183,6 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
     public function countByCustomerAndCoupon(
         CustomerInterface $customer,
         PromotionCouponInterface $coupon,
-        bool $includeCancelled = false,
     ): int {
         $states = [OrderInterface::STATE_CART];
         if ($coupon->isReusableFromCancelledOrders()) {
@@ -261,18 +309,32 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         \DateTimeInterface $startDate,
         \DateTimeInterface $endDate,
     ): int {
-        return (int) $this->createQueryBuilder('o')
+        return (int) $this->createPaidOrdersInChannelPlacedWithinDateRangeQueryBuilder($channel, $startDate, $endDate)
             ->select('SUM(o.total)')
-            ->andWhere('o.channel = :channel')
-            ->andWhere('o.paymentState = :state')
-            ->andWhere('o.checkoutCompletedAt >= :startDate')
-            ->andWhere('o.checkoutCompletedAt <= :endDate')
-            ->setParameter('channel', $channel)
-            ->setParameter('state', OrderPaymentStates::STATE_PAID)
-            ->setParameter('startDate', $startDate)
-            ->setParameter('endDate', $endDate)
             ->getQuery()
             ->getSingleScalarResult()
+        ;
+    }
+
+    public function getGroupedTotalPaidSalesForChannelInPeriod(
+        ChannelInterface $channel,
+        \DateTimeInterface $startDate,
+        \DateTimeInterface $endDate,
+        array $groupBy,
+    ): array {
+        $queryBuilder = $this->createPaidOrdersInChannelPlacedWithinDateRangeQueryBuilder($channel, $startDate, $endDate);
+        $queryBuilder->select('SUM(o.total) AS total');
+
+        foreach ($groupBy as $name => $select) {
+            $queryBuilder
+                ->addSelect($select)
+                ->addGroupBy($name)
+            ;
+        }
+
+        return $queryBuilder
+            ->getQuery()
+            ->getArrayResult()
         ;
     }
 
@@ -478,5 +540,21 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
             ->getQuery()
             ->getOneOrNullResult()
         ;
+    }
+
+    protected function createPaidOrdersInChannelPlacedWithinDateRangeQueryBuilder(
+        ChannelInterface $channel,
+        \DateTimeInterface $startDate,
+        \DateTimeInterface $endDate,
+    ): QueryBuilder {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.paymentState = :paymentState')
+            ->andWhere('o.channel = :channel')
+            ->andWhere('o.checkoutCompletedAt >= :startDate')
+            ->andWhere('o.checkoutCompletedAt <= :endDate')
+            ->setParameter('paymentState', OrderPaymentStates::STATE_PAID)
+            ->setParameter('channel', $channel)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate);
     }
 }

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Sylius\Bundle\OrderBundle\Controller;
 
 use FOS\RestBundle\View\View;
+use Sylius\Bundle\OrderBundle\Resetter\CartChangesResetterInterface;
 use Sylius\Bundle\ResourceBundle\Controller\RequestConfiguration;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
 use Sylius\Component\Order\Context\CartContextInterface;
@@ -122,7 +123,7 @@ class OrderController extends ResourceController
         }
 
         if ($form->isSubmitted() && !$form->isValid()) {
-            $this->resetChangesOnCart($resource);
+            $this->getCartResetter()->resetChanges($resource);
             $this->addFlash('error', 'sylius.cart.not_recalculated');
         }
 
@@ -150,17 +151,6 @@ class OrderController extends ResourceController
         $flashBag->add($type, $message);
     }
 
-    private function resetChangesOnCart(OrderInterface $cart): void
-    {
-        $this->manager->refresh($cart);
-        foreach ($cart->getItems() as $item) {
-            $this->manager->refresh($item);
-        }
-    }
-
-    /**
-     * @psalm-suppress DeprecatedMethod
-     */
     public function clearAction(Request $request): Response
     {
         $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
@@ -197,6 +187,12 @@ class OrderController extends ResourceController
 
     protected function redirectToCartSummary(RequestConfiguration $configuration): Response
     {
+        trigger_deprecation(
+            'sylius/order-bundle',
+            '1.13',
+            'The %s::redirectToCartSummary() method is deprecated and will be removed in Sylius 2.0.',
+            self::class,
+        );
         if (null === $configuration->getParameters()->get('redirect')) {
             return $this->redirectHandler->redirectToRoute($configuration, $this->getCartSummaryRoute());
         }
@@ -222,6 +218,11 @@ class OrderController extends ResourceController
     protected function getOrderRepository(): OrderRepositoryInterface
     {
         return $this->get('sylius.repository.order');
+    }
+
+    protected function getCartResetter(): CartChangesResetterInterface
+    {
+        return $this->get('sylius.resetter.cart_changes');
     }
 
     protected function getEventDispatcher(): EventDispatcherInterface

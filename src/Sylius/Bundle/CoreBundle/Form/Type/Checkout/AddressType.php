@@ -40,12 +40,11 @@ final class AddressType extends AbstractResourceType
         parent::__construct($dataClass, $validationGroups);
 
         if (null === $addressComparator) {
-            @trigger_error(
-                sprintf(
-                    'Not passing an $addressComparator to "%s" constructor is deprecated since Sylius 1.8 and will be impossible in Sylius 2.0.',
-                    __CLASS__,
-                ),
-                \E_USER_DEPRECATED,
+            trigger_deprecation(
+                'sylius/core-bundle',
+                '1.8',
+                'Not passing an $addressComparator to "%s" constructor is deprecated and will be prohibited in Sylius 2.0.',
+                self::class,
             );
         }
 
@@ -144,6 +143,16 @@ final class AddressType extends AbstractResourceType
 
                 $event->setData($orderData);
             })
+            ->addEventListener(FormEvents::PRE_SUBMIT, static function (FormEvent $event): void {
+                $orderData = $event->getData();
+                $form = $event->getForm();
+
+                if (array_key_exists('customer', $orderData) && !$form->has('customer')) {
+                    // Logged-in user try to submit customer while reloading page after login
+                    unset($orderData['customer']);
+                    $event->setData($orderData);
+                }
+            })
         ;
     }
 
@@ -154,6 +163,7 @@ final class AddressType extends AbstractResourceType
         $resolver
             ->setDefaults([
                 'customer' => null,
+                'csrf_message' => 'sylius.checkout.addressing.csrf_error',
             ])
         ;
     }

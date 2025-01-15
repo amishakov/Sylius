@@ -23,7 +23,6 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Webmozart\Assert\Assert;
 
-/** @experimental */
 final class ChosenShippingMethodEligibilityValidator extends ConstraintValidator
 {
     public function __construct(
@@ -33,7 +32,7 @@ final class ChosenShippingMethodEligibilityValidator extends ConstraintValidator
     ) {
     }
 
-    public function validate($value, Constraint $constraint): void
+    public function validate(mixed $value, Constraint $constraint): void
     {
         /** @var ChooseShippingMethod $value */
         Assert::isInstanceOf($value, ChooseShippingMethod::class);
@@ -51,7 +50,12 @@ final class ChosenShippingMethodEligibilityValidator extends ConstraintValidator
 
         /** @var ShipmentInterface|null $shipment */
         $shipment = $this->shipmentRepository->find($value->shipmentId);
-        Assert::notNull($shipment);
+
+        if (null === $shipment) {
+            $this->context->addViolation($constraint->shipmentNotFoundMessage);
+
+            return;
+        }
 
         $order = $shipment->getOrder();
 

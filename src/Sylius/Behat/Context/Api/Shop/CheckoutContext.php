@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Context\Api\Shop;
 
-use ApiPlatform\Core\Api\IriConverterInterface;
+use ApiPlatform\Api\IriConverterInterface;
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Client\ApiClientInterface;
 use Sylius\Behat\Client\RequestFactoryInterface;
@@ -137,9 +137,9 @@ final class CheckoutContext implements Context
     }
 
     /**
+     * @Given /^the (?:customer|visitor) has specified the email as "([^"]+)"$/
      * @When I specify the email as :email
      * @When /^the (?:customer|visitor) specify the email as "([^"]+)"$/
-     * @Given /^the (?:customer|visitor) has specified the email as "([^"]+)"$/
      */
     public function iSpecifyTheEmailAs(?string $email): void
     {
@@ -147,11 +147,11 @@ final class CheckoutContext implements Context
     }
 
     /**
+     * @Given /^the (?:visitor|customer) has specified (address as "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)" for "([^"]+)")$/
      * @When /^I specify(?: the| different) billing (address as "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)" for "([^"]+)")$/
      * @When /^the visitor changes the billing (address to "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)" for "([^"]+)")$/
      * @When /^the (?:customer|visitor) specify the billing (address as "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)" for "([^"]+)")$/
      * @When /^I specify the billing (address for "([^"]+)" from "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)")$/
-     * @Given /^the (?:visitor|customer) has specified (address as "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)" for "([^"]+)")$/
      */
     public function iSpecifyTheBillingAddressAs(AddressInterface $address): void
     {
@@ -287,10 +287,10 @@ final class CheckoutContext implements Context
     }
 
     /**
+     * @Given /^the (?:customer|visitor) has completed the addressing step$/
      * @When I complete the addressing step
      * @When I try to complete the addressing step
      * @When /^the (?:customer|visitor) completes the addressing step$/
-     * @Given /^the (?:customer|visitor) has completed the addressing step$/
      * @When the visitor try to complete the addressing step in the customer cart
      */
     public function iCompleteTheAddressingStep(): void
@@ -370,14 +370,14 @@ final class CheckoutContext implements Context
 
     /**
      * @Given I completed the shipping step with :shippingMethod shipping method
+     * @Given /^the (?:visitor|customer) has proceeded ("[^"]+" shipping method)$/
+     * @Given I proceed selecting :shippingMethod shipping method
+     * @Given I chose :shippingMethod shipping method
      * @When I proceed with :shippingMethod shipping method
      * @When I select :shippingMethod shipping method
      * @When /^the (?:visitor|customer) proceed with ("[^"]+" shipping method)$/
-     * @Given /^the (?:visitor|customer) has proceeded ("[^"]+" shipping method)$/
      * @When /^the visitor try to proceed with ("[^"]+" shipping method) in the customer cart$/
      * @When I try to change shipping method to :shippingMethod
-     * @Given I proceed selecting :shippingMethod shipping method
-     * @Given I chose :shippingMethod shipping method
      * @When I change shipping method to :shippingMethod
      * @When I have proceeded selecting :shippingMethod shipping method
      */
@@ -475,10 +475,10 @@ final class CheckoutContext implements Context
 
     /**
      * @Given I completed the payment step with :paymentMethod payment method
+     * @Given /^the (?:customer|visitor) has proceeded ("[^"]+" payment)$/
      * @When I choose :paymentMethod payment method
      * @When I select :paymentMethod payment method
      * @When /^the (?:customer|visitor) proceed with ("[^"]+" payment)$/
-     * @Given /^the (?:customer|visitor) has proceeded ("[^"]+" payment)$/
      * @When I try to change payment method to :paymentMethod payment
      * @When I change payment method to :paymentMethod after checkout
      * @When I retry the payment with :paymentMethod payment method
@@ -492,7 +492,7 @@ final class CheckoutContext implements Context
             HTTPRequest::METHOD_PATCH,
             \sprintf('payments/%s', $this->getCart()['payments'][0]['id']),
         );
-        $request->setContent(['paymentMethod' => $this->iriConverter->getIriFromItem($paymentMethod)]);
+        $request->setContent(['paymentMethod' => $this->iriConverter->getIriFromResource($paymentMethod)]);
 
         $this->client->executeCustomRequest($request);
     }
@@ -521,6 +521,22 @@ final class CheckoutContext implements Context
         $this->addressOrder($this->getArrayWithDefaultAddress());
         $this->iCompleteTheShippingStepWithFirstShippingMethod();
         $this->iChoosePaymentMethod($paymentMethod);
+    }
+
+    /**
+     * @Given I have proceeded through checkout process with :shippingMethod shipping method
+     */
+    public function iHaveProceededThroughCheckoutProcessWithShippingMethod(ShippingMethodInterface $shippingMethod): void
+    {
+        $this->addressOrder($this->getArrayWithDefaultAddress());
+
+        $this->selectShippingMethod($shippingMethod);
+
+        /** @var PaymentMethodInterface $paymentMethod */
+        $paymentMethod = $this->paymentMethodRepository->findOneBy([]);
+        $this->iChoosePaymentMethod($paymentMethod);
+
+        $this->sharedStorage->set('shipping_method', $shippingMethod);
     }
 
     /**
@@ -562,7 +578,7 @@ final class CheckoutContext implements Context
         $payments = $this->responseChecker->getValue($response, 'payments');
 
         Assert::notEmpty($payments, 'No payments found in response.');
-        $paymentMethodIri = $this->iriConverter->getIriFromItem($paymentMethod);
+        $paymentMethodIri = $this->iriConverter->getIriFromResource($paymentMethod);
         foreach ($payments as $payment) {
             if ($payment['method'] !== $paymentMethodIri) {
                 continue;
@@ -801,7 +817,7 @@ final class CheckoutContext implements Context
         $this->iConfirmMyOrder();
 
         $response = $this->client->getLastResponse();
-        Assert::same($this->responseChecker->getError($response), 'An empty order cannot be completed.');
+        Assert::same($this->responseChecker->getError($response), 'An empty order cannot be processed.');
     }
 
     /**
@@ -1052,7 +1068,7 @@ final class CheckoutContext implements Context
     {
         Assert::true($this->isViolationWithMessageInResponse(
             $this->client->getLastResponse(),
-            sprintf('The product variant with %s does not exist.', $productVariant->getCode()),
+            sprintf('The product variant %s does not exist.', $productVariant->getCode()),
         ));
     }
 
@@ -1063,7 +1079,7 @@ final class CheckoutContext implements Context
     {
         Assert::true($this->isViolationWithMessageInResponse(
             $this->client->getLastResponse(),
-            sprintf('The product variant with %s does not exist.', $code),
+            sprintf('The product variant %s does not exist.', $code),
         ));
     }
 
@@ -1223,6 +1239,20 @@ final class CheckoutContext implements Context
         Assert::contains(
             $this->client->getLastResponse()->getContent(),
             sprintf('Order is no longer eligible for this %s promotion. Your cart was recalculated.', $promotion->getName()),
+        );
+    }
+
+    /**
+     * @Then I should not be able to confirm order because the :shippingMethodName shipping method is not available
+     */
+    public function iShouldNotBeAbleToConfirmOrderBecauseTheShippingMethodIsNotAvailable(string $shippingMethodName): void
+    {
+        Assert::same(
+            $this->responseChecker->getError($this->client->getLastResponse()),
+            sprintf(
+                'The "%s" shipping method is not available. Please reselect your shipping method.',
+                $shippingMethodName,
+            ),
         );
     }
 
@@ -1472,7 +1502,7 @@ final class CheckoutContext implements Context
             'items',
         );
         $request->setContent([
-            'productVariant' => $this->iriConverter->getIriFromItem($productVariant),
+            'productVariant' => $this->iriConverter->getIriFromResource($productVariant),
             'quantity' => $quantity,
         ]);
 
@@ -1555,7 +1585,7 @@ final class CheckoutContext implements Context
             HTTPRequest::METHOD_PATCH,
             sprintf('shipments/%s', $this->getCart()['shipments'][0]['id']),
         );
-        $request->setContent(['shippingMethod' => $this->iriConverter->getIriFromItem($shippingMethod)]);
+        $request->setContent(['shippingMethod' => $this->iriConverter->getIriFromResource($shippingMethod)]);
 
         return $this->client->executeCustomRequest($request);
     }

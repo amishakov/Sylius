@@ -37,6 +37,17 @@ final class CheckoutAddressingContext implements Context
     }
 
     /**
+     * @Given the visitor has completed the addressing step
+     * @Given the customer has completed the addressing step
+     * @When the customer completes the addressing step
+     * @When the visitor completes the addressing step
+     */
+    public function theVisitorHasCompletedTheAddressingStep(): void
+    {
+        $this->addressPage->nextStep();
+    }
+
+    /**
      * @Given my billing address is fulfilled automatically through default address
      */
     public function myBillingAddressIsFulfilledAutomaticallyThroughDefaultAddress(): void
@@ -172,12 +183,20 @@ final class CheckoutAddressingContext implements Context
     }
 
     /**
+     * @Given /^the customer specify the billing (address as "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)" for "([^"]+)")$/
+     * @Given /^the visitor specify the billing (address as "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)" for "([^"]+)")$/
+     * @Given /^the visitor has specified (address as "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)" for "([^"]+)")$/
+     * @Given /^the customer has specified (address as "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)" for "([^"]+)")$/
      * @When /^I specify the billing (address as "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)" for "([^"]+)")$/
      * @When /^I specify the billing (address for "([^"]+)" from "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)")$/
      * @When /^I (do not specify any billing address) information$/
      */
     public function iSpecifyTheBillingAddressAs(AddressInterface $address)
     {
+        if (!$this->addressPage->isOpen()) {
+            $this->addressPage->open();
+        }
+
         $key = sprintf(
             'billing_address_%s_%s',
             strtolower((string) $address->getFirstName()),
@@ -204,7 +223,7 @@ final class CheckoutAddressingContext implements Context
      * @When /^I specified the billing (address as "[^"]+", "[^"]+", "[^"]+", "[^"]+" for "[^"]+")$/
      * @When /^I define the billing (address as "[^"]+", "[^"]+", "[^"]+", "[^"]+" for "[^"]+")$/
      */
-    public function iSpecifiedTheBillingAddress(AddressInterface $address = null)
+    public function iSpecifiedTheBillingAddress(?AddressInterface $address = null)
     {
         if (null === $address) {
             $address = $this->createDefaultAddress();
@@ -229,6 +248,17 @@ final class CheckoutAddressingContext implements Context
     }
 
     /**
+     * @Given the visitor has specified the email as :email
+     * @Given the customer has specified the email as :email
+     * @When the visitor specify the email as :email
+     */
+    public function theVisitorSpecifyTheEmail($email = null): void
+    {
+        $this->addressPage->open();
+        $this->addressPage->specifyEmail($email);
+    }
+
+    /**
      * @When I specify the first and last name as :fullName for billing address
      */
     public function iSpecifyTheFirstAndLastNameAsForBillingAddress(string $fullName): void
@@ -248,7 +278,7 @@ final class CheckoutAddressingContext implements Context
     /**
      * @When I go back to store
      */
-    public function iGoBackToStore()
+    public function iGoBackToStore(): void
     {
         $this->addressPage->backToStore();
     }
@@ -257,10 +287,10 @@ final class CheckoutAddressingContext implements Context
      * @When /^I proceed selecting ("[^"]+" as billing country)$/
      */
     public function iProceedSelectingBillingCountry(
-        CountryInterface $shippingCountry = null,
+        ?CountryInterface $shippingCountry = null,
         string $localeCode = 'en_US',
         ?string $email = null,
-    ) {
+    ): void {
         $this->addressPage->open(['_locale' => $localeCode]);
         $shippingAddress = $this->createDefaultAddress();
         if (null !== $shippingCountry) {
@@ -278,7 +308,7 @@ final class CheckoutAddressingContext implements Context
      */
     public function iProceedLoggingAsGuestWithAsBillingCountry(
         string $email,
-        CountryInterface $shippingCountry = null,
+        ?CountryInterface $shippingCountry = null,
     ): void {
         $this->addressPage->open();
         $this->addressPage->specifyEmail($email);
@@ -294,7 +324,7 @@ final class CheckoutAddressingContext implements Context
     /**
      * @When I specify the password as :password
      */
-    public function iSpecifyThePasswordAs($password)
+    public function iSpecifyThePasswordAs(string $password): void
     {
         $this->addressPage->specifyPassword($password);
     }
@@ -310,7 +340,7 @@ final class CheckoutAddressingContext implements Context
     /**
      * @When I sign in
      */
-    public function iSignIn()
+    public function iSignIn(): void
     {
         $this->addressPage->signIn();
     }
@@ -318,7 +348,7 @@ final class CheckoutAddressingContext implements Context
     /**
      * @Then I should have :countryName selected as country
      */
-    public function iShouldHaveSelectedAsCountry($countryName)
+    public function iShouldHaveSelectedAsCountry($countryName): void
     {
         Assert::same($this->addressPage->getShippingAddressCountry(), $countryName);
     }
@@ -356,6 +386,22 @@ final class CheckoutAddressingContext implements Context
     }
 
     /**
+     * @Then I should be notified to resubmit the addressing form
+     */
+    public function iShouldBeNotifiedToResubmitTheAddressingForm()
+    {
+        Assert::true($this->addressPage->checkFormValidationMessage('Please resubmit complete form.'), 'Unable to find "Please resubmit complete form." validation message');
+    }
+
+    /**
+     * @Then I should not be notified that the form contains extra fields
+     */
+    public function iShouldNotBeNotifiedTheFormContainsExtraFields()
+    {
+        Assert::false($this->addressPage->checkFormValidationMessage('This form should not contain extra fields.'), 'Found "This form should not contains extra fields." validation message');
+    }
+
+    /**
      * @Then I should be redirected to the addressing step
      * @Then I should be on the checkout addressing step
      */
@@ -367,7 +413,7 @@ final class CheckoutAddressingContext implements Context
     /**
      * @Then I should be able to go to the shipping step again
      */
-    public function iShouldBeAbleToGoToTheShippingStepAgain()
+    public function iShouldBeAbleToGoToTheShippingStepAgain(): void
     {
         $this->addressPage->nextStep();
 
@@ -469,9 +515,26 @@ final class CheckoutAddressingContext implements Context
     }
 
     /**
-     * @return AddressInterface
+     * @Then I should be able to update the address without unexpected alert
      */
-    private function createDefaultAddress()
+    public function iShouldBeAbleToUpdateTheAddressWithoutUnexpectedAlert(): void
+    {
+        $this->addressPage->waitForFormToStopLoading();
+    }
+
+    /**
+     * @Then the customer should have checkout address step completed
+     * @Then the visitor should have checkout address step completed
+     */
+    public function theCustomerShouldHaveCheckoutAddressStepCompleted(): void
+    {
+        Assert::false(
+            $this->addressPage->isOpen(),
+            'Customer should have checkout address step completed, but it is not.',
+        );
+    }
+
+    private function createDefaultAddress(): AddressInterface
     {
         /** @var AddressInterface $address */
         $address = $this->addressFactory->createNew();
